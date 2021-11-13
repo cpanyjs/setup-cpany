@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@actions/core': ^1.6.0
+  '@actions/exec': ^1.1.0
   '@types/js-yaml': ^4.0.4
   '@types/node': ^16.10.5
   '@typescript-eslint/parser': ^5.0.0
@@ -14,6 +15,7 @@ specifiers:
 
 dependencies:
   '@actions/core': 1.6.0
+  '@actions/exec': 1.1.0
   js-yaml: 4.1.0
 
 devDependencies:
@@ -34,10 +36,20 @@ packages:
       '@actions/http-client': 1.0.11
     dev: false
 
+  /@actions/exec/1.1.0:
+    resolution: {integrity: sha512-LImpN9AY0J1R1mEYJjVJfSZWU4zYOlEcwSTgPve1rFQqK5AwrEs6uWW5Rv70gbDIQIAUwI86z6B+9mPK4w9Sbg==}
+    dependencies:
+      '@actions/io': 1.1.1
+    dev: false
+
   /@actions/http-client/1.0.11:
     resolution: {integrity: sha512-VRYHGQV1rqnROJqdMvGUbY/Kn8vriQe/F9HR2AlYHzmKuM/p3kjNuXhmdBfcVgsvRWTz5C5XW5xvndZrVBuAYg==}
     dependencies:
       tunnel: 0.0.6
+    dev: false
+
+  /@actions/io/1.1.1:
+    resolution: {integrity: sha512-Qi4JoKXjmE0O67wAOH6y0n26QXhMKMFo7GD/4IXNVcrtLjUlGjGuVys6pQgwF3ArfGTQu0XpqaNr0YhED2RaRA==}
     dev: false
 
   /@babel/code-frame/7.12.11:

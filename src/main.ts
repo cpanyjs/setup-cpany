@@ -4,9 +4,9 @@ import { existsSync, readFileSync } from 'fs';
 import * as core from '@actions/core';
 import { load } from 'js-yaml';
 
-interface ICPanyConfig {
-  plugins: string[];
-}
+import type { ICPanyConfig } from './types';
+import { localInstall } from './local';
+import { globalInstall } from './global';
 
 function getRoot(): string {
   const root = core.getInput('root');
@@ -37,8 +37,14 @@ function loadCPanyConfig(root: string): ICPanyConfig {
 
 async function run(): Promise<void> {
   const root = getRoot();
-  core.info(`Root: ${root}`);
-  loadCPanyConfig(root);
+  core.info(`CPany Root: ${root}`);
+  const config = loadCPanyConfig(root);
+
+  if (existsSync(join(root, 'package.json'))) {
+    await localInstall(root, config);
+  } else {
+    await globalInstall(root, config);
+  }
 }
 
 run();
