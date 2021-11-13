@@ -1,6 +1,10 @@
 name: 'setup-cpany'
 description: 'Setup CPany environment'
 author: 'XLor'
+input:
+  root:
+    required: false
+    description: 'The directory of cpany.yml'
 runs:
   using: 'node12'
   main: 'dist/index.js'
