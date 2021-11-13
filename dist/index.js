@@ -90,17 +90,47 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.localInstall = void 0;
 const core = __importStar(__nccwpck_require__(5924));
 const exec_1 = __nccwpck_require__(3531);
+const fs_1 = __nccwpck_require__(5747);
+const path_1 = __nccwpck_require__(5622);
+const utils_1 = __nccwpck_require__(4780);
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany locally');
-        yield (0, exec_1.exec)('npm', ['install'], { cwd: root });
+        yield installDep(root);
         for (const name of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             core.info(name);
         }
     });
 }
 exports.localInstall = localInstall;
+function installDep(root) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if ((0, fs_1.existsSync)((0, path_1.join)(root, 'package-lock.json'))) {
+            if (!(0, utils_1.cmdExists)('npm')) {
+                core.error('npm is not found.');
+                process.exit(1);
+            }
+            yield (0, exec_1.exec)('npm', ['install'], { cwd: root });
+        }
+        else if ((0, fs_1.existsSync)((0, path_1.join)(root, 'pnpm-lock.yaml'))) {
+            if (!(0, utils_1.cmdExists)('pnpm')) {
+                yield (0, exec_1.exec)('npm', ['install', '-g', 'pnpm']);
+            }
+            yield (0, exec_1.exec)('pnpm', ['install'], { cwd: root });
+        }
+        else if ((0, fs_1.existsSync)((0, path_1.join)(root, 'yarn.lock'))) {
+            if (!(0, utils_1.cmdExists)('yarn')) {
+                yield (0, exec_1.exec)('npm', ['install', '-g', 'yarn']);
+            }
+            yield (0, exec_1.exec)('yarn', ['install'], { cwd: root });
+        }
+        else {
+            core.error(`No package manager has been detected.`);
+            process.exit(1);
+        }
+    });
+}
 
 
 /***/ }),
@@ -186,6 +216,34 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 4780:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.cmdExists = void 0;
+const os_1 = __importDefault(__nccwpck_require__(2087));
+const child_process_1 = __nccwpck_require__(3129);
+function cmdExists(cmd) {
+    try {
+        (0, child_process_1.execSync)(os_1.default.platform() === 'win32'
+            ? `cmd /c "(help ${cmd} > nul || exit 0) && where ${cmd} > nul 2> nul"`
+            : `command -v ${cmd}`);
+        return true;
+    }
+    catch (_a) {
+        return false;
+    }
+}
+exports.cmdExists = cmdExists;
 
 
 /***/ }),

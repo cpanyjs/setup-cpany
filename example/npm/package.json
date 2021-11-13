@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "dependencies": {
+    "@cpany/cli": "0.0.62"
+  }
+}

@@ -1,7 +1,10 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 import { ICPanyConfig } from './types';
+import { cmdExists } from './utils';
 
 export async function localInstall(
   root: string,
@@ -9,9 +12,32 @@ export async function localInstall(
 ): Promise<void> {
   core.info('Setup CPany locally');
 
-  await exec('npm', ['install'], { cwd: root });
+  await installDep(root);
 
   for (const name of config?.plugins ?? []) {
     core.info(name);
+  }
+}
+
+async function installDep(root: string): Promise<void> {
+  if (existsSync(join(root, 'package-lock.json'))) {
+    if (!cmdExists('npm')) {
+      core.error('npm is not found.');
+      process.exit(1);
+    }
+    await exec('npm', ['install'], { cwd: root });
+  } else if (existsSync(join(root, 'pnpm-lock.yaml'))) {
+    if (!cmdExists('pnpm')) {
+      await exec('npm', ['install', '-g', 'pnpm']);
+    }
+    await exec('pnpm', ['install'], { cwd: root });
+  } else if (existsSync(join(root, 'yarn.lock'))) {
+    if (!cmdExists('yarn')) {
+      await exec('npm', ['install', '-g', 'yarn']);
+    }
+    await exec('yarn', ['install'], { cwd: root });
+  } else {
+    core.error(`No package manager has been detected.`);
+    process.exit(1);
   }
 }
