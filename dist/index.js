@@ -98,6 +98,7 @@ function localInstall(root, config) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany locally');
         yield installDep(root);
+        core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         for (const name of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             core.info(name);
         }

@@ -35,3 +35,4 @@ jobs:
       - uses: ./
         with:
           root: ./example/npm
+      - run: cpany --version

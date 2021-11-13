@@ -14,6 +14,8 @@ export async function localInstall(
 
   await installDep(root);
 
+  core.addPath(join(root, './node_modules/.bin'));
+
   for (const name of config?.plugins ?? []) {
     core.info(name);
   }
