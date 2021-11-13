@@ -28,6 +28,7 @@ jobs:
         uses: actions/setup-node@v2.4.1
         with:
           node-version: 12.x
+          cache: pnpm
       - name: Install dependencies
         run: pnpm ci
       - name: Rebuild the dist/ directory
