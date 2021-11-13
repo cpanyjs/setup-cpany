@@ -25,7 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        working-directory: ./example/global
+        with:
+          root: ./example/global
       - run: cpany --version
   test-local-npm: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
