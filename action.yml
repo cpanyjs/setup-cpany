@@ -5,6 +5,7 @@ input:
   root:
     required: false
     description: 'The directory of cpany.yml'
+    default: './'
 runs:
   using: 'node12'
   main: 'dist/index.js'
