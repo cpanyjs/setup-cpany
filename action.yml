@@ -1,7 +1,7 @@
 name: 'setup-cpany'
 description: 'Setup CPany environment'
 author: 'XLor'
-input:
+inputs:
   root:
     required: false
     description: 'The directory of cpany.yml'
