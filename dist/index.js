@@ -62,21 +62,25 @@ function globalInstall(root, config) {
         core.endGroup();
         {
             yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
-            const rootPath = '/usr/local/lib/node_modules/@cpany';
-            if ((0, fs_1.existsSync)(rootPath)) {
-                core.info(rootPath);
-                const dirents = (0, fs_1.readdirSync)(rootPath, { withFileTypes: true });
-                for (const dirent of dirents) {
-                    core.info(dirent.name);
-                }
-            }
-            else {
-                core.info(`Not found => ${rootPath}`);
-            }
+            lsDebug('/usr/local/lib/node_modules/@cpany');
         }
     });
 }
 exports.globalInstall = globalInstall;
+function lsDebug(rootPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if ((0, fs_1.existsSync)(rootPath)) {
+            core.info(rootPath);
+            const dirents = (0, fs_1.readdirSync)(rootPath, { withFileTypes: true });
+            for (const dirent of dirents) {
+                core.info(dirent.name);
+            }
+        }
+        else {
+            core.info(`Not found => ${rootPath}`);
+        }
+    });
+}
 function installPlugin(name) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const pluginName of [
@@ -105,6 +109,8 @@ function installPlugin(name) {
 }
 function resolveGlobal(importName) {
     try {
+        core.info((0, path_1.join)(GlobalNodemodules, importName));
+        lsDebug((0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName)));
         return require.resolve((0, path_1.join)(GlobalNodemodules, importName));
     }
     catch (_a) {

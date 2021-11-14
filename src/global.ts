@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { existsSync, readdirSync } from 'fs';
 
 import * as core from '@actions/core';
@@ -33,16 +33,19 @@ export async function globalInstall(
 
   {
     await exec('npm ll -g --depth=0 --long');
-    const rootPath = '/usr/local/lib/node_modules/@cpany';
-    if (existsSync(rootPath)) {
-      core.info(rootPath);
-      const dirents = readdirSync(rootPath, { withFileTypes: true });
-      for (const dirent of dirents) {
-        core.info(dirent.name);
-      }
-    } else {
-      core.info(`Not found => ${rootPath}`);
+    lsDebug('/usr/local/lib/node_modules/@cpany');
+  }
+}
+
+async function lsDebug(rootPath: string): Promise<void> {
+  if (existsSync(rootPath)) {
+    core.info(rootPath);
+    const dirents = readdirSync(rootPath, { withFileTypes: true });
+    for (const dirent of dirents) {
+      core.info(dirent.name);
     }
+  } else {
+    core.info(`Not found => ${rootPath}`);
   }
 }
 
@@ -73,6 +76,8 @@ async function installPlugin(
 
 function resolveGlobal(importName: string): string | undefined {
   try {
+    core.info(join(GlobalNodemodules, importName));
+    lsDebug(dirname(join(GlobalNodemodules, importName)));
     return require.resolve(join(GlobalNodemodules, importName));
   } catch {
     // Resolve global node_modules
