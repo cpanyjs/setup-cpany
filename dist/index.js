@@ -339,6 +339,7 @@ function resolveImportPath(importName, root, ensure = false) {
         // Resolve global yarn fail
     }
     try {
+        (0, exec_1.getExecOutput)('ls', [(0, path_1.join)(global_dirs_1.npm.packages, importName)]);
         return require.resolve((0, path_1.join)(global_dirs_1.npm.packages, importName));
     }
     catch (_c) {

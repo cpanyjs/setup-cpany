@@ -69,6 +69,7 @@ export function resolveImportPath(
   }
 
   try {
+    getExecOutput('ls', [join(npm.packages, importName)]);
     return require.resolve(join(npm.packages, importName));
   } catch {
     // Resolve global npm fail
