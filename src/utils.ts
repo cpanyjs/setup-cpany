@@ -2,8 +2,11 @@ import os from 'os';
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 
+import axios from 'axios';
 import { sync as resolve } from 'resolve';
 import { npm, yarn } from 'global-dirs';
+
+import type { IResolvedPlugin } from './types';
 
 export function cmdExists(cmd: string): boolean {
   try {
@@ -12,6 +15,15 @@ export function cmdExists(cmd: string): boolean {
         ? `cmd /c "(help ${cmd} > nul || exit 0) && where ${cmd} > nul 2> nul"`
         : `command -v ${cmd}`
     );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function urlExists(url: string): Promise<boolean> {
+  try {
+    await axios.get(url);
     return true;
   } catch {
     return false;
@@ -62,7 +74,7 @@ export function resolveImportPath(
 export function resolveCPanyPlugin(
   name: string,
   root: string
-): { name: string; directory: string } | undefined {
+): IResolvedPlugin | undefined {
   for (const plugin of [
     name,
     `@cpany/${name}`,
