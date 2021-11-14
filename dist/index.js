@@ -172,7 +172,7 @@ function localInstall(root, config) {
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
-                core.info(`CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`);
+                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${resolvedPlugin.directory}`);
             }
             else {
                 core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => Not found`);

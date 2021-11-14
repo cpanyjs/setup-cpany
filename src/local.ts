@@ -22,7 +22,9 @@ export async function localInstall(
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
       core.info(
-        `CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`
+        `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${
+          resolvedPlugin.directory
+        }`
       );
     } else {
       core.setFailed(`CPany plugin: ${lightGreen(pluginName)} => Not found`);
