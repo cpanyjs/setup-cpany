@@ -40,6 +40,7 @@ const path_1 = __nccwpck_require__(5622);
 const core = __importStar(__nccwpck_require__(5924));
 const exec_1 = __nccwpck_require__(3531);
 const global_dirs_1 = __nccwpck_require__(2568);
+const kolorist_1 = __nccwpck_require__(1457);
 const utils_1 = __nccwpck_require__(4780);
 let GlobalNodemodules = global_dirs_1.npm.packages;
 function globalInstall(root, config) {
@@ -47,7 +48,7 @@ function globalInstall(root, config) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany globally...');
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
-        core.info(`Global node_modules: ${GlobalNodemodules}`);
+        core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
         yield core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
@@ -58,11 +59,11 @@ function globalInstall(root, config) {
                 plugins.push(resolvedPlugin);
             }
             else {
-                core.setFailed(`[${pluginName}] => Not found`);
+                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => Not found`);
             }
         }
         for (const resolvedPlugin of plugins) {
-            core.info(`CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`);
+            core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
         }
     });
 }
@@ -172,7 +173,7 @@ function localInstall(root, config) {
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
-                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${resolvedPlugin.directory}`);
+                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
             }
             else {
                 core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => Not found`);

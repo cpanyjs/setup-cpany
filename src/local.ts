@@ -2,7 +2,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { exec } from '@actions/exec';
 import * as core from '@actions/core';
-import { lightGreen } from 'kolorist';
+import { lightGreen, underline } from 'kolorist';
 
 import { ICPanyConfig } from './types';
 import { cmdExists, resolveCPanyPlugin } from './utils';
@@ -22,9 +22,9 @@ export async function localInstall(
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
       core.info(
-        `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${
+        `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${underline(
           resolvedPlugin.directory
-        }`
+        )}`
       );
     } else {
       core.setFailed(`CPany plugin: ${lightGreen(pluginName)} => Not found`);

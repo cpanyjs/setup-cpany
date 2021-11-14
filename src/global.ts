@@ -3,7 +3,7 @@ import { join } from 'path';
 import * as core from '@actions/core';
 import { exec, getExecOutput } from '@actions/exec';
 import { npm, yarn } from 'global-dirs';
-import { lightGreen } from 'kolorist';
+import { lightGreen, underline } from 'kolorist';
 
 import type { ICPanyConfig, IResolvedPlugin } from './types';
 import { packageExists } from './utils';
@@ -19,7 +19,7 @@ export async function globalInstall(
   GlobalNodemodules = (
     await getExecOutput('npm', ['root', '-g'], { silent: true })
   ).stdout.trim();
-  core.info(`Global node_modules: ${GlobalNodemodules}`);
+  core.info(`Global node_modules: ${underline(GlobalNodemodules)}`);
 
   await core.group('Install @cpany/cli globally', async () => {
     await exec('npm', ['install', '-g', '@cpany/cli']);
@@ -37,7 +37,9 @@ export async function globalInstall(
 
   for (const resolvedPlugin of plugins) {
     core.info(
-      `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${resolvedPlugin.directory}`
+      `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${underline(
+        resolvedPlugin.directory
+      )}`
     );
   }
 }
