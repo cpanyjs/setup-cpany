@@ -10,6 +10,8 @@ export async function globalInstall(
 ): Promise<void> {
   core.info('Setup CPany globally');
 
+  await exec('npm config get prefix');
+
   await exec('npm', ['install', '-g', '@cpany/cli']);
 
   core.startGroup('CPany Plugins');

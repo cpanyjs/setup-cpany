@@ -43,6 +43,7 @@ function globalInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany globally');
+        yield (0, exec_1.exec)('npm config get prefix');
         yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         core.startGroup('CPany Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
