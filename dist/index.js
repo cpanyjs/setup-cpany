@@ -169,6 +169,9 @@ function localInstall(root, config) {
         yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));
+            if (!(0, utils_1.cmdExists)('cpany')) {
+                core.setFailed(`@cpany/cli is not installed.`);
+            }
         }));
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);

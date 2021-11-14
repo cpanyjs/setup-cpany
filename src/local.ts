@@ -16,6 +16,9 @@ export async function localInstall(
   await core.group('Install dependency', async () => {
     await installDep(root);
     core.addPath(join(root, './node_modules/.bin'));
+    if (!cmdExists('cpany')) {
+      core.setFailed(`@cpany/cli is not installed.`);
+    }
   });
 
   for (const pluginName of config?.plugins ?? []) {
