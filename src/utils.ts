@@ -32,7 +32,13 @@ export async function packageExists(name: string): Promise<boolean> {
         }
       }
     });
-    return !stdout.startsWith('No matches found for');
+    for (const line of stdout.split('\n')) {
+      // TODO: check keywords
+      if (line.startsWith(name) && line.includes('CPany')) {
+        return true;
+      }
+    }
+    return false;
   } catch {
     return false;
   }

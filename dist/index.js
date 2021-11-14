@@ -306,8 +306,21 @@ function packageExists(name) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let stdout = '';
-            yield (0, exec_1.exec)('npm', ['search', name], { silent: true, listeners: { stdout: (data) => { stdout += data; } } });
-            return !stdout.startsWith('No matches found for');
+            yield (0, exec_1.exec)('npm', ['search', name], {
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        stdout += data;
+                    }
+                }
+            });
+            for (const line of stdout.split('\n')) {
+                // TODO: check keywords
+                if (line.startsWith(name) && line.includes('CPany')) {
+                    return true;
+                }
+            }
+            return false;
         }
         catch (_a) {
             return false;
