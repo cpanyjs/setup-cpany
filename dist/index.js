@@ -46,10 +46,10 @@ let GlobalNodemodules = global_dirs_1.npm.packages;
 function globalInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Setup CPany globally...');
+        core.info(`Setup CPany ${(0, kolorist_1.yellow)('global')}`);
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
         core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
-        yield core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
+        yield core.group(`Install ${(0, kolorist_1.lightGreen)('@cpany/cli')} globally`, () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
         const plugins = [];
@@ -165,7 +165,7 @@ const utils_1 = __nccwpck_require__(4780);
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Setup CPany locally...');
+        core.info('Setup CPany');
         yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));

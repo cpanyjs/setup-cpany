@@ -11,7 +11,7 @@ export async function localInstall(
   root: string,
   config: ICPanyConfig
 ): Promise<void> {
-  core.info('Setup CPany locally...');
+  core.info('Setup CPany');
 
   await core.group('Install dependency', async () => {
     await installDep(root);
