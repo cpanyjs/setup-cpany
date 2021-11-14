@@ -71,7 +71,7 @@ export function resolveCPanyPlugin(
   ]) {
     const resolved = resolveImportPath(`${plugin}/package.json`, root);
     if (resolved) {
-      return { name, directory: dirname(resolved) };
+      return { name: plugin, directory: dirname(resolved) };
     }
   }
   return undefined;

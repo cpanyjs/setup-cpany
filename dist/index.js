@@ -292,7 +292,7 @@ function resolveCPanyPlugin(name, root) {
     ]) {
         const resolved = resolveImportPath(`${plugin}/package.json`, root);
         if (resolved) {
-            return { name, directory: (0, path_1.dirname)(resolved) };
+            return { name: plugin, directory: (0, path_1.dirname)(resolved) };
         }
     }
     return undefined;
