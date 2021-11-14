@@ -101,7 +101,7 @@ function localInstall(root, config) {
         core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         core.startGroup('CPany Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
-            const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName);
+            const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
                 core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
             }
@@ -256,10 +256,11 @@ function cmdExists(cmd) {
     }
 }
 exports.cmdExists = cmdExists;
-function resolveImportPath(importName, ensure = false) {
+function resolveImportPath(importName, root, ensure = false) {
     try {
         return (0, resolve_1.sync)(importName, {
-            preserveSymlinks: false
+            preserveSymlinks: false,
+            basedir: root
         });
     }
     catch (_a) {
@@ -282,14 +283,14 @@ function resolveImportPath(importName, ensure = false) {
     return undefined;
 }
 exports.resolveImportPath = resolveImportPath;
-function resolveCPanyPlugin(name) {
+function resolveCPanyPlugin(name, root) {
     for (const plugin of [
         name,
         `@cpany/${name}`,
         `@cpany/plugin-${name}`,
         `cpany-plugin-${name}`
     ]) {
-        const resolved = resolveImportPath(`${plugin}/package.json`);
+        const resolved = resolveImportPath(`${plugin}/package.json`, root);
         if (resolved) {
             return { name, directory: (0, path_1.dirname)(resolved) };
         }

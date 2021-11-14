@@ -18,18 +18,25 @@ export function cmdExists(cmd: string): boolean {
   }
 }
 
-export function resolveImportPath(importName: string, ensure: true): string;
 export function resolveImportPath(
   importName: string,
+  root: string,
+  ensure: true
+): string;
+export function resolveImportPath(
+  importName: string,
+  root: string,
   ensure?: boolean
 ): string | undefined;
 export function resolveImportPath(
   importName: string,
+  root: string,
   ensure = false
 ): string | undefined {
   try {
     return resolve(importName, {
-      preserveSymlinks: false
+      preserveSymlinks: false,
+      basedir: root
     });
   } catch {
     // Resovle local fail
@@ -53,7 +60,8 @@ export function resolveImportPath(
 }
 
 export function resolveCPanyPlugin(
-  name: string
+  name: string,
+  root: string
 ): { name: string; directory: string } | undefined {
   for (const plugin of [
     name,
@@ -61,7 +69,7 @@ export function resolveCPanyPlugin(
     `@cpany/plugin-${name}`,
     `cpany-plugin-${name}`
   ]) {
-    const resolved = resolveImportPath(`${plugin}/package.json`);
+    const resolved = resolveImportPath(`${plugin}/package.json`, root);
     if (resolved) {
       return { name, directory: dirname(resolved) };
     }

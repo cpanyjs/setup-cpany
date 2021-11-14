@@ -18,7 +18,7 @@ export async function localInstall(
 
   core.startGroup('CPany Plugins');
   for (const pluginName of config?.plugins ?? []) {
-    const resolvedPlugin = resolveCPanyPlugin(pluginName);
+    const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
       core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
     } else {
