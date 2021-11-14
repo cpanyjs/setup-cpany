@@ -30,10 +30,6 @@ export async function localInstall(
 
 async function installDep(root: string): Promise<void> {
   if (existsSync(join(root, 'package-lock.json'))) {
-    if (!cmdExists('npm')) {
-      core.error('npm is not found.');
-      process.exit(1);
-    }
     await exec('npm', ['install'], { cwd: root });
   } else if (existsSync(join(root, 'pnpm-lock.yaml'))) {
     if (!cmdExists('pnpm')) {

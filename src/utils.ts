@@ -2,7 +2,7 @@ import os from 'os';
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 
-import axios from 'axios';
+import { exec } from '@actions/exec';
 import { sync as resolve } from 'resolve';
 import { npm, yarn } from 'global-dirs';
 
@@ -23,8 +23,16 @@ export function cmdExists(cmd: string): boolean {
 
 export async function packageExists(name: string): Promise<boolean> {
   try {
-    await axios.get(`https://www.npmjs.com/package/${name}`);
-    return true;
+    let stdout = '';
+    await exec('npm', ['search', name], {
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data;
+        }
+      }
+    });
+    return !stdout.startsWith('No matches found for');
   } catch {
     return false;
   }

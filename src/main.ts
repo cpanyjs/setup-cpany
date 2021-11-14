@@ -7,6 +7,7 @@ import { load } from 'js-yaml';
 import type { ICPanyConfig } from './types';
 import { localInstall } from './local';
 import { globalInstall } from './global';
+import { cmdExists } from './utils';
 
 function getRoot(): string {
   const root = core.getInput('root');
@@ -36,6 +37,11 @@ function loadCPanyConfig(root: string): ICPanyConfig {
 }
 
 async function run(): Promise<void> {
+  if (!cmdExists('npm')) {
+    core.error('npm is not found.');
+    process.exit(1);
+  }
+
   const root = getRoot();
   core.info(`CPany Root: ${root}`);
   const config = loadCPanyConfig(root);
