@@ -305,14 +305,8 @@ exports.cmdExists = cmdExists;
 function packageExists(name) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let stdout = '';
-            yield (0, exec_1.exec)('npm', ['search', name], {
-                silent: true,
-                listeners: {
-                    stdout: (data) => {
-                        stdout += data;
-                    }
-                }
+            const { stdout } = yield (0, exec_1.getExecOutput)('npm', ['search', name], {
+                silent: true
             });
             for (const line of stdout.split('\n')) {
                 // TODO: check keywords

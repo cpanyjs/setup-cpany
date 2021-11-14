@@ -2,7 +2,7 @@ import os from 'os';
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 
-import { exec } from '@actions/exec';
+import { getExecOutput } from '@actions/exec';
 import { sync as resolve } from 'resolve';
 import { npm, yarn } from 'global-dirs';
 
@@ -23,14 +23,8 @@ export function cmdExists(cmd: string): boolean {
 
 export async function packageExists(name: string): Promise<boolean> {
   try {
-    let stdout = '';
-    await exec('npm', ['search', name], {
-      silent: true,
-      listeners: {
-        stdout: (data: Buffer) => {
-          stdout += data;
-        }
-      }
+    const { stdout } = await getExecOutput('npm', ['search', name], {
+      silent: true
     });
     for (const line of stdout.split('\n')) {
       // TODO: check keywords
