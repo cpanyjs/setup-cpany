@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "dependencies": {
+    "@cpany/cli": "0.0.62",
+    "@cpany/codeforces": "0.0.62",
+    "@cpany/hdu": "0.0.62"
+  }
+}

@@ -36,3 +36,11 @@ jobs:
         with:
           root: ./example/npm
       - run: cpany --version
+  test-local-yarn: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          root: ./example/yarn
+      - run: cpany --version
