@@ -36,18 +36,6 @@ export async function globalInstall(
   core.endGroup();
 }
 
-// async function lsDebug(rootPath: string): Promise<void> {
-//   if (existsSync(rootPath)) {
-//     core.info(`Root Path: ${rootPath}`);
-//     const dirents = readdirSync(rootPath, { withFileTypes: true });
-//     for (const dirent of dirents) {
-//       core.info(`- ${dirent.name}`);
-//     }
-//   } else {
-//     core.info(`Not found => ${rootPath}`);
-//   }
-// }
-
 async function installPlugin(
   name: string
 ): Promise<IResolvedPlugin | undefined> {
@@ -61,7 +49,9 @@ async function installPlugin(
     if (preResolvedPlugin) {
       return { name: pluginName, directory: preResolvedPlugin };
     } else if (await packageExists(pluginName)) {
-      await exec('npm', ['install', '-g', pluginName]);
+      await core.group(`Install ${pluginName} globally`, async () => {
+        await exec('npm', ['install', '-g', pluginName]);
+      });
       const pluginDir = resolveGlobal(`${pluginName}/package.json`);
       if (pluginDir) {
         return { name: pluginName, directory: pluginDir };
@@ -75,9 +65,6 @@ async function installPlugin(
 
 function resolveGlobal(importName: string): string | undefined {
   try {
-    // core.info(`Import: ${importName}`);
-    // core.info(`Dir: ${join(GlobalNodemodules, importName)}`);
-    // lsDebug(dirname(join(GlobalNodemodules, importName)));
     return require.resolve(join(GlobalNodemodules, importName));
   } catch {
     // Resolve global node_modules
