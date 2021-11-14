@@ -3,11 +3,12 @@ import { existsSync, readFileSync } from 'fs';
 
 import * as core from '@actions/core';
 import { load } from 'js-yaml';
+import { underline } from 'kolorist';
 
 import type { ICPanyConfig } from './types';
+import { cmdExists } from './utils';
 import { localInstall } from './local';
 import { globalInstall } from './global';
-import { cmdExists } from './utils';
 
 function getRoot(): string {
   const root = core.getInput('root');
@@ -45,7 +46,7 @@ async function run(): Promise<void> {
   }
 
   const root = getRoot();
-  core.info(`CPany Root: ${root}`);
+  core.info(`CPany Root: ${underline(root)}`);
   const config = loadCPanyConfig(root);
 
   if (existsSync(join(root, 'package.json'))) {

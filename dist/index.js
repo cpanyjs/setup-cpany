@@ -247,9 +247,10 @@ const path_1 = __nccwpck_require__(5622);
 const fs_1 = __nccwpck_require__(5747);
 const core = __importStar(__nccwpck_require__(5924));
 const js_yaml_1 = __nccwpck_require__(2654);
+const kolorist_1 = __nccwpck_require__(1457);
+const utils_1 = __nccwpck_require__(4780);
 const local_1 = __nccwpck_require__(915);
 const global_1 = __nccwpck_require__(2915);
-const utils_1 = __nccwpck_require__(4780);
 function getRoot() {
     const root = core.getInput('root');
     if (root) {
@@ -284,7 +285,7 @@ function run() {
             process.exit(1);
         }
         const root = getRoot();
-        core.info(`CPany Root: ${root}`);
+        core.info(`CPany Root: ${(0, kolorist_1.underline)(root)}`);
         const config = loadCPanyConfig(root);
         if ((0, fs_1.existsSync)((0, path_1.join)(root, 'package.json'))) {
             yield (0, local_1.localInstall)(root, config);
