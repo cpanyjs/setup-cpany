@@ -58,12 +58,12 @@ async function installPlugin(
     `@cpany/plugin-${name}`,
     `cpany-plugin-${name}`
   ]) {
-    const preResolvedPlugin = resolveGlobal(pluginName);
+    const preResolvedPlugin = resolveGlobal(`${pluginName}/package.json`);
     if (preResolvedPlugin) {
       return { name: pluginName, directory: preResolvedPlugin };
     } else if (await packageExists(pluginName)) {
       await exec('npm', ['install', '-g', pluginName]);
-      const pluginDir = resolveGlobal(pluginName);
+      const pluginDir = resolveGlobal(`${pluginName}/package.json`);
       if (pluginDir) {
         return { name: pluginName, directory: pluginDir };
       } else {

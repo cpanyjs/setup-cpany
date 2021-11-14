@@ -89,13 +89,13 @@ function installPlugin(name) {
             `@cpany/plugin-${name}`,
             `cpany-plugin-${name}`
         ]) {
-            const preResolvedPlugin = resolveGlobal(pluginName);
+            const preResolvedPlugin = resolveGlobal(`${pluginName}/package.json`);
             if (preResolvedPlugin) {
                 return { name: pluginName, directory: preResolvedPlugin };
             }
             else if (yield (0, utils_1.packageExists)(pluginName)) {
                 yield (0, exec_1.exec)('npm', ['install', '-g', pluginName]);
-                const pluginDir = resolveGlobal(pluginName);
+                const pluginDir = resolveGlobal(`${pluginName}/package.json`);
                 if (pluginDir) {
                     return { name: pluginName, directory: pluginDir };
                 }
