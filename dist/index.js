@@ -46,10 +46,10 @@ let GlobalNodemodules = global_dirs_1.npm.packages;
 function globalInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info(`Setup CPany ${(0, kolorist_1.yellow)('global')}`);
+        core.info(`Setup ${(0, kolorist_1.yellow)('Global')} CPany`);
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
         core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
-        yield core.group(`Install ${(0, kolorist_1.lightGreen)('@cpany/cli')} globally`, () => __awaiter(this, void 0, void 0, function* () {
+        yield core.group(`Install ${(0, kolorist_1.lightGreen)('@cpany/cli')}`, () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
         const plugins = [];
@@ -81,7 +81,7 @@ function installPlugin(name) {
                 return { name: pluginName, directory: preResolvedPlugin };
             }
             else if (yield (0, utils_1.packageExists)(pluginName)) {
-                yield core.group(`Install ${(0, kolorist_1.lightGreen)(pluginName)} globally`, () => __awaiter(this, void 0, void 0, function* () {
+                yield core.group(`Install ${(0, kolorist_1.lightGreen)(pluginName)}`, () => __awaiter(this, void 0, void 0, function* () {
                     yield (0, exec_1.exec)('npm', ['install', '-g', pluginName]);
                 }));
                 const pluginDir = resolveGlobal(`${pluginName}/package.json`);
@@ -266,7 +266,7 @@ function loadCPanyConfig(root) {
         core.error(`${configPath} is not found`);
         process.exit(1);
     }
-    core.startGroup('Load cpany.yml');
+    core.startGroup(`Load ${(0, kolorist_1.cyan)('cpany.yml')}`);
     const content = (0, fs_1.readFileSync)(configPath, 'utf-8');
     core.info(content);
     core.endGroup();

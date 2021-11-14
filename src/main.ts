@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'fs';
 
 import * as core from '@actions/core';
 import { load } from 'js-yaml';
-import { underline } from 'kolorist';
+import { cyan, underline } from 'kolorist';
 
 import type { ICPanyConfig } from './types';
 import { cmdExists } from './utils';
@@ -26,7 +26,7 @@ function loadCPanyConfig(root: string): ICPanyConfig {
     process.exit(1);
   }
 
-  core.startGroup('Load cpany.yml');
+  core.startGroup(`Load ${cyan('cpany.yml')}`);
   const content = readFileSync(configPath, 'utf-8');
   core.info(content);
   core.endGroup();
