@@ -46,7 +46,8 @@ function globalInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany globally...');
-        GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm root -g')).stdout.trim();
+        GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
+        core.info(`Global node_modules: ${GlobalNodemodules}`);
         yield core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
