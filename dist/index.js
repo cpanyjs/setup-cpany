@@ -70,11 +70,14 @@ function installPlugin(name, root) {
             if (preResolvedPlugin) {
                 return preResolvedPlugin;
             }
-            else if (yield (0, utils_1.urlExists)(`https://www.npmjs.com/package/${pluginName}`)) {
+            else if (yield (0, utils_1.packageExists)(pluginName)) {
                 yield (0, exec_1.exec)('npm', ['install', '-g', pluginName]);
                 const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
                 if (resolvedPlugin) {
                     return resolvedPlugin;
+                }
+                else {
+                    core.error(`${pluginName} installed fail`);
                 }
             }
         }
@@ -279,7 +282,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveCPanyPlugin = exports.resolveImportPath = exports.urlExists = exports.cmdExists = void 0;
+exports.resolveCPanyPlugin = exports.resolveImportPath = exports.packageExists = exports.cmdExists = void 0;
 const os_1 = __importDefault(__nccwpck_require__(2087));
 const path_1 = __nccwpck_require__(5622);
 const child_process_1 = __nccwpck_require__(3129);
@@ -298,10 +301,10 @@ function cmdExists(cmd) {
     }
 }
 exports.cmdExists = cmdExists;
-function urlExists(url) {
+function packageExists(name) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield axios_1.default.get(url);
+            yield axios_1.default.get(`https://www.npmjs.com/package/${name}`);
             return true;
         }
         catch (_a) {
@@ -309,7 +312,7 @@ function urlExists(url) {
         }
     });
 }
-exports.urlExists = urlExists;
+exports.packageExists = packageExists;
 function resolveImportPath(importName, root, ensure = false) {
     try {
         return (0, resolve_1.sync)(importName, {

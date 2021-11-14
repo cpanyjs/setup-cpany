@@ -21,9 +21,9 @@ export function cmdExists(cmd: string): boolean {
   }
 }
 
-export async function urlExists(url: string): Promise<boolean> {
+export async function packageExists(name: string): Promise<boolean> {
   try {
-    await axios.get(url);
+    await axios.get(`https://www.npmjs.com/package/${name}`);
     return true;
   } catch {
     return false;

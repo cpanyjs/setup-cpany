@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 
 import type { ICPanyConfig, IResolvedPlugin } from './types';
-import { resolveCPanyPlugin, urlExists } from './utils';
+import { resolveCPanyPlugin, packageExists } from './utils';
 
 export async function globalInstall(
   root: string,
@@ -37,11 +37,13 @@ async function installPlugin(
     const preResolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (preResolvedPlugin) {
       return preResolvedPlugin;
-    } else if (await urlExists(`https://www.npmjs.com/package/${pluginName}`)) {
+    } else if (await packageExists(pluginName)) {
       await exec('npm', ['install', '-g', pluginName]);
       const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
       if (resolvedPlugin) {
         return resolvedPlugin;
+      } else {
+        core.error(`${pluginName} installed fail`);
       }
     }
   }
