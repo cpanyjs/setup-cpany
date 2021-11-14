@@ -60,12 +60,15 @@ function globalInstall(root, config) {
             }
         }
         core.endGroup();
-        yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
         {
+            yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
             const rootPath = '/usr/local/lib';
             if ((0, fs_1.existsSync)(rootPath)) {
                 core.info(rootPath);
-                core.info(`${(0, fs_1.lstatSync)(rootPath)}`);
+                const dirents = (0, fs_1.readdirSync)(rootPath, { withFileTypes: true });
+                for (const dirent of dirents) {
+                    core.info(dirent.name);
+                }
             }
             else {
                 core.info(`Not found => ${rootPath}`);
@@ -102,14 +105,6 @@ function installPlugin(name) {
 }
 function resolveGlobal(importName) {
     try {
-        const path = (0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName));
-        if ((0, fs_1.existsSync)(path)) {
-            core.info(path);
-            core.info(`${(0, fs_1.lstatSync)(path)}`);
-        }
-        else {
-            core.info(`Not found => ${path}`);
-        }
         return require.resolve((0, path_1.join)(GlobalNodemodules, importName));
     }
     catch (_a) {
