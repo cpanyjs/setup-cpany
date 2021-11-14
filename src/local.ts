@@ -21,9 +21,11 @@ export async function localInstall(
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
-      core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+      core.info(
+        `CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`
+      );
     } else {
-      core.setFailed(`[${pluginName}] => Not found`);
+      core.setFailed(`CPany plugin: ${pluginName} => Not found`);
     }
   }
   core.endGroup();

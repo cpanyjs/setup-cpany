@@ -24,16 +24,21 @@ export async function globalInstall(
     await exec('npm', ['install', '-g', '@cpany/cli']);
   });
 
-  core.startGroup('Install Plugins');
+  const plugins: IResolvedPlugin[] = [];
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = await installPlugin(pluginName);
     if (resolvedPlugin) {
-      core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+      plugins.push(resolvedPlugin);
     } else {
       core.setFailed(`[${pluginName}] => Not found`);
     }
   }
-  core.endGroup();
+
+  for (const resolvedPlugin of plugins) {
+    core.info(
+      `CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`
+    );
+  }
 }
 
 async function installPlugin(

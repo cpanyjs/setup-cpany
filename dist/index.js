@@ -51,17 +51,19 @@ function globalInstall(root, config) {
         yield core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
-        core.startGroup('Install Plugins');
+        const plugins = [];
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = yield installPlugin(pluginName);
             if (resolvedPlugin) {
-                core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+                plugins.push(resolvedPlugin);
             }
             else {
                 core.setFailed(`[${pluginName}] => Not found`);
             }
         }
-        core.endGroup();
+        for (const resolvedPlugin of plugins) {
+            core.info(`CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`);
+        }
     });
 }
 exports.globalInstall = globalInstall;
@@ -170,10 +172,10 @@ function localInstall(root, config) {
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
-                core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+                core.info(`CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`);
             }
             else {
-                core.setFailed(`[${pluginName}] => Not found`);
+                core.setFailed(`CPany plugin: ${pluginName} => Not found`);
             }
         }
         core.endGroup();
