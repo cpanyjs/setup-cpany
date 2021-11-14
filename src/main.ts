@@ -24,10 +24,12 @@ function loadCPanyConfig(root: string): ICPanyConfig {
     core.error(`${configPath} is not found`);
     process.exit(1);
   }
-  core.startGroup('cpany.yml');
+
+  core.startGroup('Load cpany.yml');
   const content = readFileSync(configPath, 'utf-8');
   core.info(content);
   core.endGroup();
+
   try {
     return load(content) as ICPanyConfig;
   } catch (error) {

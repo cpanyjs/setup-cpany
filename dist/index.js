@@ -37,7 +37,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.globalInstall = void 0;
 const path_1 = __nccwpck_require__(5622);
-const fs_1 = __nccwpck_require__(5747);
 const core = __importStar(__nccwpck_require__(5924));
 const exec_1 = __nccwpck_require__(3531);
 const global_dirs_1 = __nccwpck_require__(2568);
@@ -46,10 +45,12 @@ let GlobalNodemodules = global_dirs_1.npm.packages;
 function globalInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Setup CPany globally');
+        core.info('Setup CPany globally...');
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm root -g')).stdout.trim();
-        yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
-        core.startGroup('CPany Plugins');
+        core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
+            yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
+        }));
+        core.startGroup('Install Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = yield installPlugin(pluginName);
             if (resolvedPlugin) {
@@ -60,27 +61,20 @@ function globalInstall(root, config) {
             }
         }
         core.endGroup();
-        {
-            yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
-            lsDebug('/usr/local/lib/node_modules/@cpany');
-        }
     });
 }
 exports.globalInstall = globalInstall;
-function lsDebug(rootPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if ((0, fs_1.existsSync)(rootPath)) {
-            core.info(`Root Path: ${rootPath}`);
-            const dirents = (0, fs_1.readdirSync)(rootPath, { withFileTypes: true });
-            for (const dirent of dirents) {
-                core.info(`- ${dirent.name}`);
-            }
-        }
-        else {
-            core.info(`Not found => ${rootPath}`);
-        }
-    });
-}
+// async function lsDebug(rootPath: string): Promise<void> {
+//   if (existsSync(rootPath)) {
+//     core.info(`Root Path: ${rootPath}`);
+//     const dirents = readdirSync(rootPath, { withFileTypes: true });
+//     for (const dirent of dirents) {
+//       core.info(`- ${dirent.name}`);
+//     }
+//   } else {
+//     core.info(`Not found => ${rootPath}`);
+//   }
+// }
 function installPlugin(name) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const pluginName of [
@@ -109,9 +103,9 @@ function installPlugin(name) {
 }
 function resolveGlobal(importName) {
     try {
-        core.info(`Import: ${importName}`);
-        core.info(`Dir: ${(0, path_1.join)(GlobalNodemodules, importName)}`);
-        lsDebug((0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName)));
+        // core.info(`Import: ${importName}`);
+        // core.info(`Dir: ${join(GlobalNodemodules, importName)}`);
+        // lsDebug(dirname(join(GlobalNodemodules, importName)));
         return require.resolve((0, path_1.join)(GlobalNodemodules, importName));
     }
     catch (_a) {
@@ -178,8 +172,10 @@ const utils_1 = __nccwpck_require__(4780);
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Setup CPany locally');
-        yield installDep(root);
+        core.info('Setup CPany locally...');
+        core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
+            yield installDep(root);
+        }));
         core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         core.startGroup('CPany Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
@@ -278,7 +274,7 @@ function loadCPanyConfig(root) {
         core.error(`${configPath} is not found`);
         process.exit(1);
     }
-    core.startGroup('cpany.yml');
+    core.startGroup('Load cpany.yml');
     const content = (0, fs_1.readFileSync)(configPath, 'utf-8');
     core.info(content);
     core.endGroup();

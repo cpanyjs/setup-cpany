@@ -10,9 +10,11 @@ export async function localInstall(
   root: string,
   config: ICPanyConfig
 ): Promise<void> {
-  core.info('Setup CPany locally');
+  core.info('Setup CPany locally...');
 
-  await installDep(root);
+  core.group('Install dependency', async () => {
+    await installDep(root);
+  });
 
   core.addPath(join(root, './node_modules/.bin'));
 

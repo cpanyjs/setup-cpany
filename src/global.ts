@@ -1,5 +1,4 @@
-import { dirname, join } from 'path';
-import { existsSync, readdirSync } from 'fs';
+import { join } from 'path';
 
 import * as core from '@actions/core';
 import { exec, getExecOutput } from '@actions/exec';
@@ -14,13 +13,15 @@ export async function globalInstall(
   root: string,
   config: ICPanyConfig
 ): Promise<void> {
-  core.info('Setup CPany globally');
+  core.info('Setup CPany globally...');
 
   GlobalNodemodules = (await getExecOutput('npm root -g')).stdout.trim();
 
-  await exec('npm', ['install', '-g', '@cpany/cli']);
+  core.group('Install @cpany/cli globally', async () => {
+    await exec('npm', ['install', '-g', '@cpany/cli']);
+  });
 
-  core.startGroup('CPany Plugins');
+  core.startGroup('Install Plugins');
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = await installPlugin(pluginName);
     if (resolvedPlugin) {
@@ -30,24 +31,19 @@ export async function globalInstall(
     }
   }
   core.endGroup();
-
-  {
-    await exec('npm ll -g --depth=0 --long');
-    lsDebug('/usr/local/lib/node_modules/@cpany');
-  }
 }
 
-async function lsDebug(rootPath: string): Promise<void> {
-  if (existsSync(rootPath)) {
-    core.info(`Root Path: ${rootPath}`);
-    const dirents = readdirSync(rootPath, { withFileTypes: true });
-    for (const dirent of dirents) {
-      core.info(`- ${dirent.name}`);
-    }
-  } else {
-    core.info(`Not found => ${rootPath}`);
-  }
-}
+// async function lsDebug(rootPath: string): Promise<void> {
+//   if (existsSync(rootPath)) {
+//     core.info(`Root Path: ${rootPath}`);
+//     const dirents = readdirSync(rootPath, { withFileTypes: true });
+//     for (const dirent of dirents) {
+//       core.info(`- ${dirent.name}`);
+//     }
+//   } else {
+//     core.info(`Not found => ${rootPath}`);
+//   }
+// }
 
 async function installPlugin(
   name: string
@@ -76,9 +72,9 @@ async function installPlugin(
 
 function resolveGlobal(importName: string): string | undefined {
   try {
-    core.info(`Import: ${importName}`);
-    core.info(`Dir: ${join(GlobalNodemodules, importName)}`);
-    lsDebug(dirname(join(GlobalNodemodules, importName)));
+    // core.info(`Import: ${importName}`);
+    // core.info(`Dir: ${join(GlobalNodemodules, importName)}`);
+    // lsDebug(dirname(join(GlobalNodemodules, importName)));
     return require.resolve(join(GlobalNodemodules, importName));
   } catch {
     // Resolve global node_modules
