@@ -16,7 +16,7 @@ export async function globalInstall(
 ): Promise<void> {
   core.info('Setup CPany globally');
 
-  GlobalNodemodules = (await getExecOutput('npm root -g')).stdout;
+  GlobalNodemodules = (await getExecOutput('npm root -g')).stdout.trim();
 
   await exec('npm', ['install', '-g', '@cpany/cli']);
 
