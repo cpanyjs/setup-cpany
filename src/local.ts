@@ -12,11 +12,10 @@ export async function localInstall(
 ): Promise<void> {
   core.info('Setup CPany locally...');
 
-  core.group('Install dependency', async () => {
+  await core.group('Install dependency', async () => {
     await installDep(root);
+    core.addPath(join(root, './node_modules/.bin'));
   });
-
-  core.addPath(join(root, './node_modules/.bin'));
 
   core.startGroup('CPany Plugins');
   for (const pluginName of config?.plugins ?? []) {

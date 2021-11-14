@@ -47,7 +47,7 @@ function globalInstall(root, config) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany globally...');
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm root -g')).stdout.trim();
-        core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
+        yield core.group('Install @cpany/cli globally', () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
         core.startGroup('Install Plugins');
@@ -173,10 +173,10 @@ function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         core.info('Setup CPany locally...');
-        core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
+        yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
+            core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         }));
-        core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         core.startGroup('CPany Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
