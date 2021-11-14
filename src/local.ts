@@ -1,7 +1,8 @@
-import * as core from '@actions/core';
-import { exec } from '@actions/exec';
-import { existsSync } from 'fs';
 import { join } from 'path';
+import { existsSync } from 'fs';
+import { exec } from '@actions/exec';
+import * as core from '@actions/core';
+import { lightGreen } from 'kolorist';
 
 import { ICPanyConfig } from './types';
 import { cmdExists, resolveCPanyPlugin } from './utils';
@@ -24,7 +25,7 @@ export async function localInstall(
         `CPany plugin: ${resolvedPlugin.name} => ${resolvedPlugin.directory}`
       );
     } else {
-      core.setFailed(`CPany plugin: ${pluginName} => Not found`);
+      core.setFailed(`CPany plugin: ${lightGreen(pluginName)} => Not found`);
     }
   }
 }

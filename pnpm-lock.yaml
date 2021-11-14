@@ -12,6 +12,7 @@ specifiers:
   eslint-plugin-github: ^4.3.2
   global-dirs: ^3.0.0
   js-yaml: ^4.1.0
+  kolorist: ^1.5.0
   prettier: 2.4.1
   resolve: ^1.20.0
   typescript: ^4.4.4
@@ -21,6 +22,7 @@ dependencies:
   '@actions/exec': 1.1.0
   global-dirs: 3.0.0
   js-yaml: 4.1.0
+  kolorist: 1.5.0
   resolve: 1.20.0
 
 devDependencies:
@@ -1168,6 +1170,10 @@ packages:
     dependencies:
       minimist: 1.2.5
     dev: true
+
+  /kolorist/1.5.0:
+    resolution: {integrity: sha512-pPobydIHK884YBtkS/tWSZXpSAEpcMbilyun3KL37ot935qL2HNKm/tI45i/Rd+MxdIWEhm7/LmUQzWZYK+Qhg==}
+    dev: false
 
   /levn/0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
