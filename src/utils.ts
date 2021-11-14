@@ -71,7 +71,7 @@ export function resolveImportPath(
   }
 
   try {
-    const path = join(npm.packages, importName);
+    const path = dirname(join(npm.packages, importName));
     if (existsSync(path)) {
       core.info(path);
       core.info(`${lstatSync(path)}`);

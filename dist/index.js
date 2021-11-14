@@ -360,7 +360,7 @@ function resolveImportPath(importName, root, ensure = false) {
         // Resolve global yarn fail
     }
     try {
-        const path = (0, path_1.join)(global_dirs_1.npm.packages, importName);
+        const path = (0, path_1.dirname)((0, path_1.join)(global_dirs_1.npm.packages, importName));
         if ((0, fs_1.existsSync)(path)) {
             core.info(path);
             core.info(`${(0, fs_1.lstatSync)(path)}`);
