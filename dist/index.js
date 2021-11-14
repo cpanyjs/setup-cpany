@@ -60,6 +60,7 @@ function globalInstall(root, config) {
             }
         }
         core.endGroup();
+        yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
     });
 }
 exports.globalInstall = globalInstall;

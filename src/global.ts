@@ -30,6 +30,8 @@ export async function globalInstall(
     }
   }
   core.endGroup();
+
+  await exec('npm ll -g --depth=0 --long');
 }
 
 async function installPlugin(
