@@ -99,9 +99,17 @@ function localInstall(root, config) {
         core.info('Setup CPany locally');
         yield installDep(root);
         core.addPath((0, path_1.join)(root, './node_modules/.bin'));
-        for (const name of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
-            core.info(name);
+        core.startGroup('CPany Plugins');
+        for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
+            const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName);
+            if (resolvedPlugin) {
+                core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+            }
+            else {
+                core.setFailed(`[${pluginName}] => Not found`);
+            }
         }
+        core.endGroup();
     });
 }
 exports.localInstall = localInstall;
@@ -230,9 +238,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cmdExists = void 0;
+exports.resolveCPanyPlugin = exports.resolveImportPath = exports.cmdExists = void 0;
 const os_1 = __importDefault(__nccwpck_require__(2087));
+const path_1 = __nccwpck_require__(5622);
 const child_process_1 = __nccwpck_require__(3129);
+const resolve_1 = __nccwpck_require__(9158);
+const global_dirs_1 = __nccwpck_require__(2568);
 function cmdExists(cmd) {
     try {
         (0, child_process_1.execSync)(os_1.default.platform() === 'win32'
@@ -245,6 +256,47 @@ function cmdExists(cmd) {
     }
 }
 exports.cmdExists = cmdExists;
+function resolveImportPath(importName, ensure = false) {
+    try {
+        return (0, resolve_1.sync)(importName, {
+            preserveSymlinks: false
+        });
+    }
+    catch (_a) {
+        // Resovle local fail
+    }
+    try {
+        return require.resolve((0, path_1.join)(global_dirs_1.yarn.packages, importName));
+    }
+    catch (_b) {
+        // Resolve global yarn fail
+    }
+    try {
+        return require.resolve((0, path_1.join)(global_dirs_1.npm.packages, importName));
+    }
+    catch (_c) {
+        // Resolve global npm fail
+    }
+    if (ensure)
+        throw new Error(`Failed to resolve package "${importName}"`);
+    return undefined;
+}
+exports.resolveImportPath = resolveImportPath;
+function resolveCPanyPlugin(name) {
+    for (const plugin of [
+        name,
+        `@cpany/${name}`,
+        `@cpany/plugin-${name}`,
+        `cpany-plugin-${name}`
+    ]) {
+        const resolved = resolveImportPath(`${plugin}/package.json`);
+        if (resolved) {
+            return { name, directory: (0, path_1.dirname)(resolved) };
+        }
+    }
+    return undefined;
+}
+exports.resolveCPanyPlugin = resolveCPanyPlugin;
 
 
 /***/ }),
@@ -2787,6 +2839,510 @@ function copyFile(srcFile, destFile, force) {
     });
 }
 //# sourceMappingURL=io.js.map
+
+/***/ }),
+
+/***/ 7979:
+/***/ ((module) => {
+
+"use strict";
+
+
+/* eslint no-invalid-this: 1 */
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var slice = Array.prototype.slice;
+var toStr = Object.prototype.toString;
+var funcType = '[object Function]';
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slice.call(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                args.concat(slice.call(arguments))
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        } else {
+            return target.apply(
+                that,
+                args.concat(slice.call(arguments))
+            );
+        }
+    };
+
+    var boundLength = Math.max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs.push('$' + i);
+    }
+
+    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+
+/***/ }),
+
+/***/ 6986:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var implementation = __nccwpck_require__(7979);
+
+module.exports = Function.prototype.bind || implementation;
+
+
+/***/ }),
+
+/***/ 2568:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+const path = __nccwpck_require__(5622);
+const os = __nccwpck_require__(2087);
+const fs = __nccwpck_require__(5747);
+const ini = __nccwpck_require__(423);
+
+const isWindows = process.platform === 'win32';
+
+const readRc = filePath => {
+	try {
+		return ini.parse(fs.readFileSync(filePath, 'utf8')).prefix;
+	} catch {}
+};
+
+const getEnvNpmPrefix = () => {
+	// TODO: Remove the `.reduce` call.
+	// eslint-disable-next-line unicorn/no-array-reduce
+	return Object.keys(process.env).reduce((prefix, name) => {
+		return /^npm_config_prefix$/i.test(name) ? process.env[name] : prefix;
+	}, undefined);
+};
+
+const getGlobalNpmrc = () => {
+	if (isWindows && process.env.APPDATA) {
+		// Hardcoded contents of `c:\Program Files\nodejs\node_modules\npm\npmrc`
+		return path.join(process.env.APPDATA, '/npm/etc/npmrc');
+	}
+
+	// Homebrew special case: `$(brew --prefix)/lib/node_modules/npm/npmrc`
+	if (process.execPath.includes('/Cellar/node')) {
+		const homebrewPrefix = process.execPath.slice(0, process.execPath.indexOf('/Cellar/node'));
+		return path.join(homebrewPrefix, '/lib/node_modules/npm/npmrc');
+	}
+
+	if (process.execPath.endsWith('/bin/node')) {
+		const installDir = path.dirname(path.dirname(process.execPath));
+		return path.join(installDir, '/etc/npmrc');
+	}
+};
+
+const getDefaultNpmPrefix = () => {
+	if (isWindows) {
+		// `c:\node\node.exe` → `prefix=c:\node\`
+		return path.dirname(process.execPath);
+	}
+
+	// `/usr/local/bin/node` → `prefix=/usr/local`
+	return path.dirname(path.dirname(process.execPath));
+};
+
+const getNpmPrefix = () => {
+	const envPrefix = getEnvNpmPrefix();
+	if (envPrefix) {
+		return envPrefix;
+	}
+
+	const homePrefix = readRc(path.join(os.homedir(), '.npmrc'));
+	if (homePrefix) {
+		return homePrefix;
+	}
+
+	if (process.env.PREFIX) {
+		return process.env.PREFIX;
+	}
+
+	const globalPrefix = readRc(getGlobalNpmrc());
+	if (globalPrefix) {
+		return globalPrefix;
+	}
+
+	return getDefaultNpmPrefix();
+};
+
+const npmPrefix = path.resolve(getNpmPrefix());
+
+const getYarnWindowsDirectory = () => {
+	if (isWindows && process.env.LOCALAPPDATA) {
+		const dir = path.join(process.env.LOCALAPPDATA, 'Yarn');
+		if (fs.existsSync(dir)) {
+			return dir;
+		}
+	}
+
+	return false;
+};
+
+const getYarnPrefix = () => {
+	if (process.env.PREFIX) {
+		return process.env.PREFIX;
+	}
+
+	const windowsPrefix = getYarnWindowsDirectory();
+	if (windowsPrefix) {
+		return windowsPrefix;
+	}
+
+	const configPrefix = path.join(os.homedir(), '.config/yarn');
+	if (fs.existsSync(configPrefix)) {
+		return configPrefix;
+	}
+
+	const homePrefix = path.join(os.homedir(), '.yarn-config');
+	if (fs.existsSync(homePrefix)) {
+		return homePrefix;
+	}
+
+	// Yarn supports the npm conventions but the inverse is not true
+	return npmPrefix;
+};
+
+exports.npm = {};
+exports.npm.prefix = npmPrefix;
+exports.npm.packages = path.join(npmPrefix, isWindows ? 'node_modules' : 'lib/node_modules');
+exports.npm.binaries = isWindows ? npmPrefix : path.join(npmPrefix, 'bin');
+
+const yarnPrefix = path.resolve(getYarnPrefix());
+exports.yarn = {};
+exports.yarn.prefix = yarnPrefix;
+exports.yarn.packages = path.join(yarnPrefix, getYarnWindowsDirectory() ? 'Data/global/node_modules' : 'global/node_modules');
+exports.yarn.binaries = path.join(exports.yarn.packages, '.bin');
+
+
+/***/ }),
+
+/***/ 2686:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var bind = __nccwpck_require__(6986);
+
+module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+
+/***/ }),
+
+/***/ 423:
+/***/ ((module) => {
+
+const { hasOwnProperty } = Object.prototype
+
+const eol = typeof process !== 'undefined' &&
+  process.platform === 'win32' ? '\r\n' : '\n'
+
+const encode = (obj, opt) => {
+  const children = []
+  let out = ''
+
+  if (typeof opt === 'string') {
+    opt = {
+      section: opt,
+      whitespace: false,
+    }
+  } else {
+    opt = opt || Object.create(null)
+    opt.whitespace = opt.whitespace === true
+  }
+
+  const separator = opt.whitespace ? ' = ' : '='
+
+  for (const k of Object.keys(obj)) {
+    const val = obj[k]
+    if (val && Array.isArray(val)) {
+      for (const item of val)
+        out += safe(k + '[]') + separator + safe(item) + '\n'
+    } else if (val && typeof val === 'object')
+      children.push(k)
+    else
+      out += safe(k) + separator + safe(val) + eol
+  }
+
+  if (opt.section && out.length)
+    out = '[' + safe(opt.section) + ']' + eol + out
+
+  for (const k of children) {
+    const nk = dotSplit(k).join('\\.')
+    const section = (opt.section ? opt.section + '.' : '') + nk
+    const { whitespace } = opt
+    const child = encode(obj[k], {
+      section,
+      whitespace,
+    })
+    if (out.length && child.length)
+      out += eol
+
+    out += child
+  }
+
+  return out
+}
+
+const dotSplit = str =>
+  str.replace(/\1/g, '\u0002LITERAL\\1LITERAL\u0002')
+    .replace(/\\\./g, '\u0001')
+    .split(/\./)
+    .map(part =>
+      part.replace(/\1/g, '\\.')
+        .replace(/\2LITERAL\\1LITERAL\2/g, '\u0001'))
+
+const decode = str => {
+  const out = Object.create(null)
+  let p = out
+  let section = null
+  //          section     |key      = value
+  const re = /^\[([^\]]*)\]$|^([^=]+)(=(.*))?$/i
+  const lines = str.split(/[\r\n]+/g)
+
+  for (const line of lines) {
+    if (!line || line.match(/^\s*[;#]/))
+      continue
+    const match = line.match(re)
+    if (!match)
+      continue
+    if (match[1] !== undefined) {
+      section = unsafe(match[1])
+      if (section === '__proto__') {
+        // not allowed
+        // keep parsing the section, but don't attach it.
+        p = Object.create(null)
+        continue
+      }
+      p = out[section] = out[section] || Object.create(null)
+      continue
+    }
+    const keyRaw = unsafe(match[2])
+    const isArray = keyRaw.length > 2 && keyRaw.slice(-2) === '[]'
+    const key = isArray ? keyRaw.slice(0, -2) : keyRaw
+    if (key === '__proto__')
+      continue
+    const valueRaw = match[3] ? unsafe(match[4]) : true
+    const value = valueRaw === 'true' ||
+      valueRaw === 'false' ||
+      valueRaw === 'null' ? JSON.parse(valueRaw)
+      : valueRaw
+
+    // Convert keys with '[]' suffix to an array
+    if (isArray) {
+      if (!hasOwnProperty.call(p, key))
+        p[key] = []
+      else if (!Array.isArray(p[key]))
+        p[key] = [p[key]]
+    }
+
+    // safeguard against resetting a previously defined
+    // array by accidentally forgetting the brackets
+    if (Array.isArray(p[key]))
+      p[key].push(value)
+    else
+      p[key] = value
+  }
+
+  // {a:{y:1},"a.b":{x:2}} --> {a:{y:1,b:{x:2}}}
+  // use a filter to return the keys that have to be deleted.
+  const remove = []
+  for (const k of Object.keys(out)) {
+    if (!hasOwnProperty.call(out, k) ||
+        typeof out[k] !== 'object' ||
+        Array.isArray(out[k]))
+      continue
+
+    // see if the parent section is also an object.
+    // if so, add it to that, and mark this one for deletion
+    const parts = dotSplit(k)
+    let p = out
+    const l = parts.pop()
+    const nl = l.replace(/\\\./g, '.')
+    for (const part of parts) {
+      if (part === '__proto__')
+        continue
+      if (!hasOwnProperty.call(p, part) || typeof p[part] !== 'object')
+        p[part] = Object.create(null)
+      p = p[part]
+    }
+    if (p === out && nl === l)
+      continue
+
+    p[nl] = out[k]
+    remove.push(k)
+  }
+  for (const del of remove)
+    delete out[del]
+
+  return out
+}
+
+const isQuoted = val =>
+  (val.charAt(0) === '"' && val.slice(-1) === '"') ||
+    (val.charAt(0) === "'" && val.slice(-1) === "'")
+
+const safe = val =>
+  (typeof val !== 'string' ||
+    val.match(/[=\r\n]/) ||
+    val.match(/^\[/) ||
+    (val.length > 1 &&
+     isQuoted(val)) ||
+    val !== val.trim())
+    ? JSON.stringify(val)
+    : val.replace(/;/g, '\\;').replace(/#/g, '\\#')
+
+const unsafe = (val, doUnesc) => {
+  val = (val || '').trim()
+  if (isQuoted(val)) {
+    // remove the single quotes before calling JSON.parse
+    if (val.charAt(0) === "'")
+      val = val.substr(1, val.length - 2)
+
+    try {
+      val = JSON.parse(val)
+    } catch (_) {}
+  } else {
+    // walk the val to find the first not-escaped ; character
+    let esc = false
+    let unesc = ''
+    for (let i = 0, l = val.length; i < l; i++) {
+      const c = val.charAt(i)
+      if (esc) {
+        if ('\\;#'.indexOf(c) !== -1)
+          unesc += c
+        else
+          unesc += '\\' + c
+
+        esc = false
+      } else if (';#'.indexOf(c) !== -1)
+        break
+      else if (c === '\\')
+        esc = true
+      else
+        unesc += c
+    }
+    if (esc)
+      unesc += '\\'
+
+    return unesc.trim()
+  }
+  return val
+}
+
+module.exports = {
+  parse: decode,
+  decode,
+  stringify: encode,
+  encode,
+  safe,
+  unsafe,
+}
+
+
+/***/ }),
+
+/***/ 7393:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var has = __nccwpck_require__(2686);
+
+function specifierIncluded(current, specifier) {
+	var nodeParts = current.split('.');
+	var parts = specifier.split(' ');
+	var op = parts.length > 1 ? parts[0] : '=';
+	var versionParts = (parts.length > 1 ? parts[1] : parts[0]).split('.');
+
+	for (var i = 0; i < 3; ++i) {
+		var cur = parseInt(nodeParts[i] || 0, 10);
+		var ver = parseInt(versionParts[i] || 0, 10);
+		if (cur === ver) {
+			continue; // eslint-disable-line no-restricted-syntax, no-continue
+		}
+		if (op === '<') {
+			return cur < ver;
+		}
+		if (op === '>=') {
+			return cur >= ver;
+		}
+		return false;
+	}
+	return op === '>=';
+}
+
+function matchesRange(current, range) {
+	var specifiers = range.split(/ ?&& ?/);
+	if (specifiers.length === 0) {
+		return false;
+	}
+	for (var i = 0; i < specifiers.length; ++i) {
+		if (!specifierIncluded(current, specifiers[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function versionIncluded(nodeVersion, specifierValue) {
+	if (typeof specifierValue === 'boolean') {
+		return specifierValue;
+	}
+
+	var current = typeof nodeVersion === 'undefined'
+		? process.versions && process.versions.node
+		: nodeVersion;
+
+	if (typeof current !== 'string') {
+		throw new TypeError(typeof nodeVersion === 'undefined' ? 'Unable to determine current node version' : 'If provided, a valid node version is required');
+	}
+
+	if (specifierValue && typeof specifierValue === 'object') {
+		for (var i = 0; i < specifierValue.length; ++i) {
+			if (matchesRange(current, specifierValue[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return matchesRange(current, specifierValue);
+}
+
+var data = __nccwpck_require__(1922);
+
+module.exports = function isCore(x, nodeVersion) {
+	return has(data, x) && versionIncluded(nodeVersion, data[x]);
+};
+
 
 /***/ }),
 
@@ -6898,6 +7454,788 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
 
 /***/ }),
 
+/***/ 867:
+/***/ ((module) => {
+
+"use strict";
+
+
+var isWindows = process.platform === 'win32';
+
+// Regex to split a windows path into into [dir, root, basename, name, ext]
+var splitWindowsRe =
+    /^(((?:[a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?[\\\/]?)(?:[^\\\/]*[\\\/])*)((\.{1,2}|[^\\\/]+?|)(\.[^.\/\\]*|))[\\\/]*$/;
+
+var win32 = {};
+
+function win32SplitPath(filename) {
+  return splitWindowsRe.exec(filename).slice(1);
+}
+
+win32.parse = function(pathString) {
+  if (typeof pathString !== 'string') {
+    throw new TypeError(
+        "Parameter 'pathString' must be a string, not " + typeof pathString
+    );
+  }
+  var allParts = win32SplitPath(pathString);
+  if (!allParts || allParts.length !== 5) {
+    throw new TypeError("Invalid path '" + pathString + "'");
+  }
+  return {
+    root: allParts[1],
+    dir: allParts[0] === allParts[1] ? allParts[0] : allParts[0].slice(0, -1),
+    base: allParts[2],
+    ext: allParts[4],
+    name: allParts[3]
+  };
+};
+
+
+
+// Split a filename into [dir, root, basename, name, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^((\/?)(?:[^\/]*\/)*)((\.{1,2}|[^\/]+?|)(\.[^.\/]*|))[\/]*$/;
+var posix = {};
+
+
+function posixSplitPath(filename) {
+  return splitPathRe.exec(filename).slice(1);
+}
+
+
+posix.parse = function(pathString) {
+  if (typeof pathString !== 'string') {
+    throw new TypeError(
+        "Parameter 'pathString' must be a string, not " + typeof pathString
+    );
+  }
+  var allParts = posixSplitPath(pathString);
+  if (!allParts || allParts.length !== 5) {
+    throw new TypeError("Invalid path '" + pathString + "'");
+  }
+  
+  return {
+    root: allParts[1],
+    dir: allParts[0].slice(0, -1),
+    base: allParts[2],
+    ext: allParts[4],
+    name: allParts[3],
+  };
+};
+
+
+if (isWindows)
+  module.exports = win32.parse;
+else /* posix */
+  module.exports = posix.parse;
+
+module.exports.posix = posix.parse;
+module.exports.win32 = win32.parse;
+
+
+/***/ }),
+
+/***/ 9158:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var async = __nccwpck_require__(3034);
+async.core = __nccwpck_require__(8186);
+async.isCore = __nccwpck_require__(9189);
+async.sync = __nccwpck_require__(6024);
+
+module.exports = async;
+
+
+/***/ }),
+
+/***/ 3034:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var fs = __nccwpck_require__(5747);
+var path = __nccwpck_require__(5622);
+var caller = __nccwpck_require__(9618);
+var nodeModulesPaths = __nccwpck_require__(4170);
+var normalizeOptions = __nccwpck_require__(3602);
+var isCore = __nccwpck_require__(7393);
+
+var realpathFS = fs.realpath && typeof fs.realpath.native === 'function' ? fs.realpath.native : fs.realpath;
+
+var defaultIsFile = function isFile(file, cb) {
+    fs.stat(file, function (err, stat) {
+        if (!err) {
+            return cb(null, stat.isFile() || stat.isFIFO());
+        }
+        if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return cb(null, false);
+        return cb(err);
+    });
+};
+
+var defaultIsDir = function isDirectory(dir, cb) {
+    fs.stat(dir, function (err, stat) {
+        if (!err) {
+            return cb(null, stat.isDirectory());
+        }
+        if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return cb(null, false);
+        return cb(err);
+    });
+};
+
+var defaultRealpath = function realpath(x, cb) {
+    realpathFS(x, function (realpathErr, realPath) {
+        if (realpathErr && realpathErr.code !== 'ENOENT') cb(realpathErr);
+        else cb(null, realpathErr ? x : realPath);
+    });
+};
+
+var maybeRealpath = function maybeRealpath(realpath, x, opts, cb) {
+    if (opts && opts.preserveSymlinks === false) {
+        realpath(x, cb);
+    } else {
+        cb(null, x);
+    }
+};
+
+var defaultReadPackage = function defaultReadPackage(readFile, pkgfile, cb) {
+    readFile(pkgfile, function (readFileErr, body) {
+        if (readFileErr) cb(readFileErr);
+        else {
+            try {
+                var pkg = JSON.parse(body);
+                cb(null, pkg);
+            } catch (jsonErr) {
+                cb(null);
+            }
+        }
+    });
+};
+
+var getPackageCandidates = function getPackageCandidates(x, start, opts) {
+    var dirs = nodeModulesPaths(start, opts, x);
+    for (var i = 0; i < dirs.length; i++) {
+        dirs[i] = path.join(dirs[i], x);
+    }
+    return dirs;
+};
+
+module.exports = function resolve(x, options, callback) {
+    var cb = callback;
+    var opts = options;
+    if (typeof options === 'function') {
+        cb = opts;
+        opts = {};
+    }
+    if (typeof x !== 'string') {
+        var err = new TypeError('Path must be a string.');
+        return process.nextTick(function () {
+            cb(err);
+        });
+    }
+
+    opts = normalizeOptions(x, opts);
+
+    var isFile = opts.isFile || defaultIsFile;
+    var isDirectory = opts.isDirectory || defaultIsDir;
+    var readFile = opts.readFile || fs.readFile;
+    var realpath = opts.realpath || defaultRealpath;
+    var readPackage = opts.readPackage || defaultReadPackage;
+    if (opts.readFile && opts.readPackage) {
+        var conflictErr = new TypeError('`readFile` and `readPackage` are mutually exclusive.');
+        return process.nextTick(function () {
+            cb(conflictErr);
+        });
+    }
+    var packageIterator = opts.packageIterator;
+
+    var extensions = opts.extensions || ['.js'];
+    var includeCoreModules = opts.includeCoreModules !== false;
+    var basedir = opts.basedir || path.dirname(caller());
+    var parent = opts.filename || basedir;
+
+    opts.paths = opts.paths || [];
+
+    // ensure that `basedir` is an absolute path at this point, resolving against the process' current working directory
+    var absoluteStart = path.resolve(basedir);
+
+    maybeRealpath(
+        realpath,
+        absoluteStart,
+        opts,
+        function (err, realStart) {
+            if (err) cb(err);
+            else init(realStart);
+        }
+    );
+
+    var res;
+    function init(basedir) {
+        if ((/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/).test(x)) {
+            res = path.resolve(basedir, x);
+            if (x === '.' || x === '..' || x.slice(-1) === '/') res += '/';
+            if ((/\/$/).test(x) && res === basedir) {
+                loadAsDirectory(res, opts.package, onfile);
+            } else loadAsFile(res, opts.package, onfile);
+        } else if (includeCoreModules && isCore(x)) {
+            return cb(null, x);
+        } else loadNodeModules(x, basedir, function (err, n, pkg) {
+            if (err) cb(err);
+            else if (n) {
+                return maybeRealpath(realpath, n, opts, function (err, realN) {
+                    if (err) {
+                        cb(err);
+                    } else {
+                        cb(null, realN, pkg);
+                    }
+                });
+            } else {
+                var moduleError = new Error("Cannot find module '" + x + "' from '" + parent + "'");
+                moduleError.code = 'MODULE_NOT_FOUND';
+                cb(moduleError);
+            }
+        });
+    }
+
+    function onfile(err, m, pkg) {
+        if (err) cb(err);
+        else if (m) cb(null, m, pkg);
+        else loadAsDirectory(res, function (err, d, pkg) {
+            if (err) cb(err);
+            else if (d) {
+                maybeRealpath(realpath, d, opts, function (err, realD) {
+                    if (err) {
+                        cb(err);
+                    } else {
+                        cb(null, realD, pkg);
+                    }
+                });
+            } else {
+                var moduleError = new Error("Cannot find module '" + x + "' from '" + parent + "'");
+                moduleError.code = 'MODULE_NOT_FOUND';
+                cb(moduleError);
+            }
+        });
+    }
+
+    function loadAsFile(x, thePackage, callback) {
+        var loadAsFilePackage = thePackage;
+        var cb = callback;
+        if (typeof loadAsFilePackage === 'function') {
+            cb = loadAsFilePackage;
+            loadAsFilePackage = undefined;
+        }
+
+        var exts = [''].concat(extensions);
+        load(exts, x, loadAsFilePackage);
+
+        function load(exts, x, loadPackage) {
+            if (exts.length === 0) return cb(null, undefined, loadPackage);
+            var file = x + exts[0];
+
+            var pkg = loadPackage;
+            if (pkg) onpkg(null, pkg);
+            else loadpkg(path.dirname(file), onpkg);
+
+            function onpkg(err, pkg_, dir) {
+                pkg = pkg_;
+                if (err) return cb(err);
+                if (dir && pkg && opts.pathFilter) {
+                    var rfile = path.relative(dir, file);
+                    var rel = rfile.slice(0, rfile.length - exts[0].length);
+                    var r = opts.pathFilter(pkg, x, rel);
+                    if (r) return load(
+                        [''].concat(extensions.slice()),
+                        path.resolve(dir, r),
+                        pkg
+                    );
+                }
+                isFile(file, onex);
+            }
+            function onex(err, ex) {
+                if (err) return cb(err);
+                if (ex) return cb(null, file, pkg);
+                load(exts.slice(1), x, pkg);
+            }
+        }
+    }
+
+    function loadpkg(dir, cb) {
+        if (dir === '' || dir === '/') return cb(null);
+        if (process.platform === 'win32' && (/^\w:[/\\]*$/).test(dir)) {
+            return cb(null);
+        }
+        if ((/[/\\]node_modules[/\\]*$/).test(dir)) return cb(null);
+
+        maybeRealpath(realpath, dir, opts, function (unwrapErr, pkgdir) {
+            if (unwrapErr) return loadpkg(path.dirname(dir), cb);
+            var pkgfile = path.join(pkgdir, 'package.json');
+            isFile(pkgfile, function (err, ex) {
+                // on err, ex is false
+                if (!ex) return loadpkg(path.dirname(dir), cb);
+
+                readPackage(readFile, pkgfile, function (err, pkgParam) {
+                    if (err) cb(err);
+
+                    var pkg = pkgParam;
+
+                    if (pkg && opts.packageFilter) {
+                        pkg = opts.packageFilter(pkg, pkgfile);
+                    }
+                    cb(null, pkg, dir);
+                });
+            });
+        });
+    }
+
+    function loadAsDirectory(x, loadAsDirectoryPackage, callback) {
+        var cb = callback;
+        var fpkg = loadAsDirectoryPackage;
+        if (typeof fpkg === 'function') {
+            cb = fpkg;
+            fpkg = opts.package;
+        }
+
+        maybeRealpath(realpath, x, opts, function (unwrapErr, pkgdir) {
+            if (unwrapErr) return cb(unwrapErr);
+            var pkgfile = path.join(pkgdir, 'package.json');
+            isFile(pkgfile, function (err, ex) {
+                if (err) return cb(err);
+                if (!ex) return loadAsFile(path.join(x, 'index'), fpkg, cb);
+
+                readPackage(readFile, pkgfile, function (err, pkgParam) {
+                    if (err) return cb(err);
+
+                    var pkg = pkgParam;
+
+                    if (pkg && opts.packageFilter) {
+                        pkg = opts.packageFilter(pkg, pkgfile);
+                    }
+
+                    if (pkg && pkg.main) {
+                        if (typeof pkg.main !== 'string') {
+                            var mainError = new TypeError('package “' + pkg.name + '” `main` must be a string');
+                            mainError.code = 'INVALID_PACKAGE_MAIN';
+                            return cb(mainError);
+                        }
+                        if (pkg.main === '.' || pkg.main === './') {
+                            pkg.main = 'index';
+                        }
+                        loadAsFile(path.resolve(x, pkg.main), pkg, function (err, m, pkg) {
+                            if (err) return cb(err);
+                            if (m) return cb(null, m, pkg);
+                            if (!pkg) return loadAsFile(path.join(x, 'index'), pkg, cb);
+
+                            var dir = path.resolve(x, pkg.main);
+                            loadAsDirectory(dir, pkg, function (err, n, pkg) {
+                                if (err) return cb(err);
+                                if (n) return cb(null, n, pkg);
+                                loadAsFile(path.join(x, 'index'), pkg, cb);
+                            });
+                        });
+                        return;
+                    }
+
+                    loadAsFile(path.join(x, '/index'), pkg, cb);
+                });
+            });
+        });
+    }
+
+    function processDirs(cb, dirs) {
+        if (dirs.length === 0) return cb(null, undefined);
+        var dir = dirs[0];
+
+        isDirectory(path.dirname(dir), isdir);
+
+        function isdir(err, isdir) {
+            if (err) return cb(err);
+            if (!isdir) return processDirs(cb, dirs.slice(1));
+            loadAsFile(dir, opts.package, onfile);
+        }
+
+        function onfile(err, m, pkg) {
+            if (err) return cb(err);
+            if (m) return cb(null, m, pkg);
+            loadAsDirectory(dir, opts.package, ondir);
+        }
+
+        function ondir(err, n, pkg) {
+            if (err) return cb(err);
+            if (n) return cb(null, n, pkg);
+            processDirs(cb, dirs.slice(1));
+        }
+    }
+    function loadNodeModules(x, start, cb) {
+        var thunk = function () { return getPackageCandidates(x, start, opts); };
+        processDirs(
+            cb,
+            packageIterator ? packageIterator(x, start, thunk, opts) : thunk()
+        );
+    }
+};
+
+
+/***/ }),
+
+/***/ 9618:
+/***/ ((module) => {
+
+module.exports = function () {
+    // see https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+    var origPrepareStackTrace = Error.prepareStackTrace;
+    Error.prepareStackTrace = function (_, stack) { return stack; };
+    var stack = (new Error()).stack;
+    Error.prepareStackTrace = origPrepareStackTrace;
+    return stack[2].getFileName();
+};
+
+
+/***/ }),
+
+/***/ 8186:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var current = (process.versions && process.versions.node && process.versions.node.split('.')) || [];
+
+function specifierIncluded(specifier) {
+    var parts = specifier.split(' ');
+    var op = parts.length > 1 ? parts[0] : '=';
+    var versionParts = (parts.length > 1 ? parts[1] : parts[0]).split('.');
+
+    for (var i = 0; i < 3; ++i) {
+        var cur = parseInt(current[i] || 0, 10);
+        var ver = parseInt(versionParts[i] || 0, 10);
+        if (cur === ver) {
+            continue; // eslint-disable-line no-restricted-syntax, no-continue
+        }
+        if (op === '<') {
+            return cur < ver;
+        } else if (op === '>=') {
+            return cur >= ver;
+        } else {
+            return false;
+        }
+    }
+    return op === '>=';
+}
+
+function matchesRange(range) {
+    var specifiers = range.split(/ ?&& ?/);
+    if (specifiers.length === 0) { return false; }
+    for (var i = 0; i < specifiers.length; ++i) {
+        if (!specifierIncluded(specifiers[i])) { return false; }
+    }
+    return true;
+}
+
+function versionIncluded(specifierValue) {
+    if (typeof specifierValue === 'boolean') { return specifierValue; }
+    if (specifierValue && typeof specifierValue === 'object') {
+        for (var i = 0; i < specifierValue.length; ++i) {
+            if (matchesRange(specifierValue[i])) { return true; }
+        }
+        return false;
+    }
+    return matchesRange(specifierValue);
+}
+
+var data = __nccwpck_require__(8587);
+
+var core = {};
+for (var mod in data) { // eslint-disable-line no-restricted-syntax
+    if (Object.prototype.hasOwnProperty.call(data, mod)) {
+        core[mod] = versionIncluded(data[mod]);
+    }
+}
+module.exports = core;
+
+
+/***/ }),
+
+/***/ 9189:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var isCoreModule = __nccwpck_require__(7393);
+
+module.exports = function isCore(x) {
+    return isCoreModule(x);
+};
+
+
+/***/ }),
+
+/***/ 4170:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var path = __nccwpck_require__(5622);
+var parse = path.parse || __nccwpck_require__(867);
+
+var getNodeModulesDirs = function getNodeModulesDirs(absoluteStart, modules) {
+    var prefix = '/';
+    if ((/^([A-Za-z]:)/).test(absoluteStart)) {
+        prefix = '';
+    } else if ((/^\\\\/).test(absoluteStart)) {
+        prefix = '\\\\';
+    }
+
+    var paths = [absoluteStart];
+    var parsed = parse(absoluteStart);
+    while (parsed.dir !== paths[paths.length - 1]) {
+        paths.push(parsed.dir);
+        parsed = parse(parsed.dir);
+    }
+
+    return paths.reduce(function (dirs, aPath) {
+        return dirs.concat(modules.map(function (moduleDir) {
+            return path.resolve(prefix, aPath, moduleDir);
+        }));
+    }, []);
+};
+
+module.exports = function nodeModulesPaths(start, opts, request) {
+    var modules = opts && opts.moduleDirectory
+        ? [].concat(opts.moduleDirectory)
+        : ['node_modules'];
+
+    if (opts && typeof opts.paths === 'function') {
+        return opts.paths(
+            request,
+            start,
+            function () { return getNodeModulesDirs(start, modules); },
+            opts
+        );
+    }
+
+    var dirs = getNodeModulesDirs(start, modules);
+    return opts && opts.paths ? dirs.concat(opts.paths) : dirs;
+};
+
+
+/***/ }),
+
+/***/ 3602:
+/***/ ((module) => {
+
+module.exports = function (x, opts) {
+    /**
+     * This file is purposefully a passthrough. It's expected that third-party
+     * environments will override it at runtime in order to inject special logic
+     * into `resolve` (by manipulating the options). One such example is the PnP
+     * code path in Yarn.
+     */
+
+    return opts || {};
+};
+
+
+/***/ }),
+
+/***/ 6024:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var isCore = __nccwpck_require__(7393);
+var fs = __nccwpck_require__(5747);
+var path = __nccwpck_require__(5622);
+var caller = __nccwpck_require__(9618);
+var nodeModulesPaths = __nccwpck_require__(4170);
+var normalizeOptions = __nccwpck_require__(3602);
+
+var realpathFS = fs.realpathSync && typeof fs.realpathSync.native === 'function' ? fs.realpathSync.native : fs.realpathSync;
+
+var defaultIsFile = function isFile(file) {
+    try {
+        var stat = fs.statSync(file);
+    } catch (e) {
+        if (e && (e.code === 'ENOENT' || e.code === 'ENOTDIR')) return false;
+        throw e;
+    }
+    return stat.isFile() || stat.isFIFO();
+};
+
+var defaultIsDir = function isDirectory(dir) {
+    try {
+        var stat = fs.statSync(dir);
+    } catch (e) {
+        if (e && (e.code === 'ENOENT' || e.code === 'ENOTDIR')) return false;
+        throw e;
+    }
+    return stat.isDirectory();
+};
+
+var defaultRealpathSync = function realpathSync(x) {
+    try {
+        return realpathFS(x);
+    } catch (realpathErr) {
+        if (realpathErr.code !== 'ENOENT') {
+            throw realpathErr;
+        }
+    }
+    return x;
+};
+
+var maybeRealpathSync = function maybeRealpathSync(realpathSync, x, opts) {
+    if (opts && opts.preserveSymlinks === false) {
+        return realpathSync(x);
+    }
+    return x;
+};
+
+var defaultReadPackageSync = function defaultReadPackageSync(readFileSync, pkgfile) {
+    var body = readFileSync(pkgfile);
+    try {
+        var pkg = JSON.parse(body);
+        return pkg;
+    } catch (jsonErr) {}
+};
+
+var getPackageCandidates = function getPackageCandidates(x, start, opts) {
+    var dirs = nodeModulesPaths(start, opts, x);
+    for (var i = 0; i < dirs.length; i++) {
+        dirs[i] = path.join(dirs[i], x);
+    }
+    return dirs;
+};
+
+module.exports = function resolveSync(x, options) {
+    if (typeof x !== 'string') {
+        throw new TypeError('Path must be a string.');
+    }
+    var opts = normalizeOptions(x, options);
+
+    var isFile = opts.isFile || defaultIsFile;
+    var readFileSync = opts.readFileSync || fs.readFileSync;
+    var isDirectory = opts.isDirectory || defaultIsDir;
+    var realpathSync = opts.realpathSync || defaultRealpathSync;
+    var readPackageSync = opts.readPackageSync || defaultReadPackageSync;
+    if (opts.readFileSync && opts.readPackageSync) {
+        throw new TypeError('`readFileSync` and `readPackageSync` are mutually exclusive.');
+    }
+    var packageIterator = opts.packageIterator;
+
+    var extensions = opts.extensions || ['.js'];
+    var includeCoreModules = opts.includeCoreModules !== false;
+    var basedir = opts.basedir || path.dirname(caller());
+    var parent = opts.filename || basedir;
+
+    opts.paths = opts.paths || [];
+
+    // ensure that `basedir` is an absolute path at this point, resolving against the process' current working directory
+    var absoluteStart = maybeRealpathSync(realpathSync, path.resolve(basedir), opts);
+
+    if ((/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/).test(x)) {
+        var res = path.resolve(absoluteStart, x);
+        if (x === '.' || x === '..' || x.slice(-1) === '/') res += '/';
+        var m = loadAsFileSync(res) || loadAsDirectorySync(res);
+        if (m) return maybeRealpathSync(realpathSync, m, opts);
+    } else if (includeCoreModules && isCore(x)) {
+        return x;
+    } else {
+        var n = loadNodeModulesSync(x, absoluteStart);
+        if (n) return maybeRealpathSync(realpathSync, n, opts);
+    }
+
+    var err = new Error("Cannot find module '" + x + "' from '" + parent + "'");
+    err.code = 'MODULE_NOT_FOUND';
+    throw err;
+
+    function loadAsFileSync(x) {
+        var pkg = loadpkg(path.dirname(x));
+
+        if (pkg && pkg.dir && pkg.pkg && opts.pathFilter) {
+            var rfile = path.relative(pkg.dir, x);
+            var r = opts.pathFilter(pkg.pkg, x, rfile);
+            if (r) {
+                x = path.resolve(pkg.dir, r); // eslint-disable-line no-param-reassign
+            }
+        }
+
+        if (isFile(x)) {
+            return x;
+        }
+
+        for (var i = 0; i < extensions.length; i++) {
+            var file = x + extensions[i];
+            if (isFile(file)) {
+                return file;
+            }
+        }
+    }
+
+    function loadpkg(dir) {
+        if (dir === '' || dir === '/') return;
+        if (process.platform === 'win32' && (/^\w:[/\\]*$/).test(dir)) {
+            return;
+        }
+        if ((/[/\\]node_modules[/\\]*$/).test(dir)) return;
+
+        var pkgfile = path.join(maybeRealpathSync(realpathSync, dir, opts), 'package.json');
+
+        if (!isFile(pkgfile)) {
+            return loadpkg(path.dirname(dir));
+        }
+
+        var pkg = readPackageSync(readFileSync, pkgfile);
+
+        if (pkg && opts.packageFilter) {
+            // v2 will pass pkgfile
+            pkg = opts.packageFilter(pkg, /*pkgfile,*/ dir); // eslint-disable-line spaced-comment
+        }
+
+        return { pkg: pkg, dir: dir };
+    }
+
+    function loadAsDirectorySync(x) {
+        var pkgfile = path.join(maybeRealpathSync(realpathSync, x, opts), '/package.json');
+        if (isFile(pkgfile)) {
+            try {
+                var pkg = readPackageSync(readFileSync, pkgfile);
+            } catch (e) {}
+
+            if (pkg && opts.packageFilter) {
+                // v2 will pass pkgfile
+                pkg = opts.packageFilter(pkg, /*pkgfile,*/ x); // eslint-disable-line spaced-comment
+            }
+
+            if (pkg && pkg.main) {
+                if (typeof pkg.main !== 'string') {
+                    var mainError = new TypeError('package “' + pkg.name + '” `main` must be a string');
+                    mainError.code = 'INVALID_PACKAGE_MAIN';
+                    throw mainError;
+                }
+                if (pkg.main === '.' || pkg.main === './') {
+                    pkg.main = 'index';
+                }
+                try {
+                    var m = loadAsFileSync(path.resolve(x, pkg.main));
+                    if (m) return m;
+                    var n = loadAsDirectorySync(path.resolve(x, pkg.main));
+                    if (n) return n;
+                } catch (e) {}
+            }
+        }
+
+        return loadAsFileSync(path.join(x, '/index'));
+    }
+
+    function loadNodeModulesSync(x, start) {
+        var thunk = function () { return getPackageCandidates(x, start, opts); };
+        var dirs = packageIterator ? packageIterator(x, start, thunk, opts) : thunk();
+
+        for (var i = 0; i < dirs.length; i++) {
+            var dir = dirs[i];
+            if (isDirectory(path.dirname(dir))) {
+                var m = loadAsFileSync(dir);
+                if (m) return m;
+                var n = loadAsDirectorySync(dir);
+                if (n) return n;
+            }
+        }
+    }
+};
+
+
+/***/ }),
+
 /***/ 2565:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -7175,6 +8513,22 @@ if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
 }
 exports.debug = debug; // for test
 
+
+/***/ }),
+
+/***/ 1922:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse('{"assert":true,"node:assert":[">= 14.18 && < 15",">= 16"],"assert/strict":">= 15","node:assert/strict":">= 16","async_hooks":">= 8","node:async_hooks":[">= 14.18 && < 15",">= 16"],"buffer_ieee754":"< 0.9.7","buffer":true,"node:buffer":[">= 14.18 && < 15",">= 16"],"child_process":true,"node:child_process":[">= 14.18 && < 15",">= 16"],"cluster":true,"node:cluster":[">= 14.18 && < 15",">= 16"],"console":true,"node:console":[">= 14.18 && < 15",">= 16"],"constants":true,"node:constants":[">= 14.18 && < 15",">= 16"],"crypto":true,"node:crypto":[">= 14.18 && < 15",">= 16"],"_debug_agent":">= 1 && < 8","_debugger":"< 8","dgram":true,"node:dgram":[">= 14.18 && < 15",">= 16"],"diagnostics_channel":[">= 14.17 && < 15",">= 15.1"],"node:diagnostics_channel":[">= 14.18 && < 15",">= 16"],"dns":true,"node:dns":[">= 14.18 && < 15",">= 16"],"dns/promises":">= 15","node:dns/promises":">= 16","domain":">= 0.7.12","node:domain":[">= 14.18 && < 15",">= 16"],"events":true,"node:events":[">= 14.18 && < 15",">= 16"],"freelist":"< 6","fs":true,"node:fs":[">= 14.18 && < 15",">= 16"],"fs/promises":[">= 10 && < 10.1",">= 14"],"node:fs/promises":[">= 14.18 && < 15",">= 16"],"_http_agent":">= 0.11.1","node:_http_agent":[">= 14.18 && < 15",">= 16"],"_http_client":">= 0.11.1","node:_http_client":[">= 14.18 && < 15",">= 16"],"_http_common":">= 0.11.1","node:_http_common":[">= 14.18 && < 15",">= 16"],"_http_incoming":">= 0.11.1","node:_http_incoming":[">= 14.18 && < 15",">= 16"],"_http_outgoing":">= 0.11.1","node:_http_outgoing":[">= 14.18 && < 15",">= 16"],"_http_server":">= 0.11.1","node:_http_server":[">= 14.18 && < 15",">= 16"],"http":true,"node:http":[">= 14.18 && < 15",">= 16"],"http2":">= 8.8","node:http2":[">= 14.18 && < 15",">= 16"],"https":true,"node:https":[">= 14.18 && < 15",">= 16"],"inspector":">= 8","node:inspector":[">= 14.18 && < 15",">= 16"],"_linklist":"< 8","module":true,"node:module":[">= 14.18 && < 15",">= 16"],"net":true,"node:net":[">= 14.18 && < 15",">= 16"],"node-inspect/lib/_inspect":">= 7.6 && < 12","node-inspect/lib/internal/inspect_client":">= 7.6 && < 12","node-inspect/lib/internal/inspect_repl":">= 7.6 && < 12","os":true,"node:os":[">= 14.18 && < 15",">= 16"],"path":true,"node:path":[">= 14.18 && < 15",">= 16"],"path/posix":">= 15.3","node:path/posix":">= 16","path/win32":">= 15.3","node:path/win32":">= 16","perf_hooks":">= 8.5","node:perf_hooks":[">= 14.18 && < 15",">= 16"],"process":">= 1","node:process":[">= 14.18 && < 15",">= 16"],"punycode":true,"node:punycode":[">= 14.18 && < 15",">= 16"],"querystring":true,"node:querystring":[">= 14.18 && < 15",">= 16"],"readline":true,"node:readline":[">= 14.18 && < 15",">= 16"],"readline/promises":">= 17","node:readline/promises":">= 17","repl":true,"node:repl":[">= 14.18 && < 15",">= 16"],"smalloc":">= 0.11.5 && < 3","_stream_duplex":">= 0.9.4","node:_stream_duplex":[">= 14.18 && < 15",">= 16"],"_stream_transform":">= 0.9.4","node:_stream_transform":[">= 14.18 && < 15",">= 16"],"_stream_wrap":">= 1.4.1","node:_stream_wrap":[">= 14.18 && < 15",">= 16"],"_stream_passthrough":">= 0.9.4","node:_stream_passthrough":[">= 14.18 && < 15",">= 16"],"_stream_readable":">= 0.9.4","node:_stream_readable":[">= 14.18 && < 15",">= 16"],"_stream_writable":">= 0.9.4","node:_stream_writable":[">= 14.18 && < 15",">= 16"],"stream":true,"node:stream":[">= 14.18 && < 15",">= 16"],"stream/consumers":">= 16.7","node:stream/consumers":">= 16.7","stream/promises":">= 15","node:stream/promises":">= 16","stream/web":">= 16.5","node:stream/web":">= 16.5","string_decoder":true,"node:string_decoder":[">= 14.18 && < 15",">= 16"],"sys":[">= 0.6 && < 0.7",">= 0.8"],"node:sys":[">= 14.18 && < 15",">= 16"],"timers":true,"node:timers":[">= 14.18 && < 15",">= 16"],"timers/promises":">= 15","node:timers/promises":">= 16","_tls_common":">= 0.11.13","node:_tls_common":[">= 14.18 && < 15",">= 16"],"_tls_legacy":">= 0.11.3 && < 10","_tls_wrap":">= 0.11.3","node:_tls_wrap":[">= 14.18 && < 15",">= 16"],"tls":true,"node:tls":[">= 14.18 && < 15",">= 16"],"trace_events":">= 10","node:trace_events":[">= 14.18 && < 15",">= 16"],"tty":true,"node:tty":[">= 14.18 && < 15",">= 16"],"url":true,"node:url":[">= 14.18 && < 15",">= 16"],"util":true,"node:util":[">= 14.18 && < 15",">= 16"],"util/types":">= 15.3","node:util/types":">= 16","v8/tools/arguments":">= 10 && < 12","v8/tools/codemap":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8/tools/consarray":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8/tools/csvparser":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8/tools/logreader":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8/tools/profile_view":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8/tools/splaytree":[">= 4.4 && < 5",">= 5.2 && < 12"],"v8":">= 1","node:v8":[">= 14.18 && < 15",">= 16"],"vm":true,"node:vm":[">= 14.18 && < 15",">= 16"],"wasi":">= 13.4 && < 13.5","worker_threads":">= 11.7","node:worker_threads":[">= 14.18 && < 15",">= 16"],"zlib":true,"node:zlib":[">= 14.18 && < 15",">= 16"]}');
+
+/***/ }),
+
+/***/ 8587:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse('{"assert":true,"assert/strict":">= 15","async_hooks":">= 8","buffer_ieee754":"< 0.9.7","buffer":true,"child_process":true,"cluster":true,"console":true,"constants":true,"crypto":true,"_debug_agent":">= 1 && < 8","_debugger":"< 8","dgram":true,"diagnostics_channel":">= 15.1","dns":true,"dns/promises":">= 15","domain":">= 0.7.12","events":true,"freelist":"< 6","fs":true,"fs/promises":[">= 10 && < 10.1",">= 14"],"_http_agent":">= 0.11.1","_http_client":">= 0.11.1","_http_common":">= 0.11.1","_http_incoming":">= 0.11.1","_http_outgoing":">= 0.11.1","_http_server":">= 0.11.1","http":true,"http2":">= 8.8","https":true,"inspector":">= 8.0.0","_linklist":"< 8","module":true,"net":true,"node-inspect/lib/_inspect":">= 7.6.0 && < 12","node-inspect/lib/internal/inspect_client":">= 7.6.0 && < 12","node-inspect/lib/internal/inspect_repl":">= 7.6.0 && < 12","os":true,"path":true,"path/posix":">= 15.3","path/win32":">= 15.3","perf_hooks":">= 8.5","process":">= 1","punycode":true,"querystring":true,"readline":true,"repl":true,"smalloc":">= 0.11.5 && < 3","_stream_duplex":">= 0.9.4","_stream_transform":">= 0.9.4","_stream_wrap":">= 1.4.1","_stream_passthrough":">= 0.9.4","_stream_readable":">= 0.9.4","_stream_writable":">= 0.9.4","stream":true,"stream/promises":">= 15","string_decoder":true,"sys":[">= 0.6 && < 0.7",">= 0.8"],"timers":true,"timers/promises":">= 15","_tls_common":">= 0.11.13","_tls_legacy":">= 0.11.3 && < 10","_tls_wrap":">= 0.11.3","tls":true,"trace_events":">= 10","tty":true,"url":true,"util":true,"util/types":">= 15.3","v8/tools/arguments":">= 10 && < 12","v8/tools/codemap":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8/tools/consarray":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8/tools/csvparser":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8/tools/logreader":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8/tools/profile_view":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8/tools/splaytree":[">= 4.4.0 && < 5",">= 5.2.0 && < 12"],"v8":">= 1","vm":true,"wasi":">= 13.4 && < 13.5","worker_threads":">= 11.7","zlib":true}');
 
 /***/ }),
 

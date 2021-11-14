@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { ICPanyConfig } from './types';
-import { cmdExists } from './utils';
+import { cmdExists, resolveCPanyPlugin } from './utils';
 
 export async function localInstall(
   root: string,
@@ -16,9 +16,16 @@ export async function localInstall(
 
   core.addPath(join(root, './node_modules/.bin'));
 
-  for (const name of config?.plugins ?? []) {
-    core.info(name);
+  core.startGroup('CPany Plugins');
+  for (const pluginName of config?.plugins ?? []) {
+    const resolvedPlugin = resolveCPanyPlugin(pluginName);
+    if (resolvedPlugin) {
+      core.info(`[${resolvedPlugin.name}] => ${resolvedPlugin.directory}`);
+    } else {
+      core.setFailed(`[${pluginName}] => Not found`);
+    }
   }
+  core.endGroup();
 }
 
 async function installDep(root: string): Promise<void> {
