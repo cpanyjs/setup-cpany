@@ -1,8 +1,10 @@
 import os from 'os';
 import { join, dirname } from 'path';
+import { existsSync, lstatSync } from 'fs';
 import { execSync } from 'child_process';
 
 import { getExecOutput } from '@actions/exec';
+import * as core from '@actions/core';
 import { sync as resolve } from 'resolve';
 import { npm, yarn } from 'global-dirs';
 
@@ -69,7 +71,13 @@ export function resolveImportPath(
   }
 
   try {
-    getExecOutput('ls', [join(npm.packages, importName)]);
+    const path = join(npm.packages, importName);
+    if (existsSync(path)) {
+      core.info(path);
+      core.info(`${lstatSync(path)}`);
+    } else {
+      core.info(`Not found => ${path}`);
+    }
     return require.resolve(join(npm.packages, importName));
   } catch {
     // Resolve global npm fail
