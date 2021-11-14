@@ -33,7 +33,7 @@ export async function globalInstall(
 
   {
     await exec('npm ll -g --depth=0 --long');
-    const rootPath = '/usr/local/lib';
+    const rootPath = '/usr/local/lib/node_modules';
     if (existsSync(rootPath)) {
       core.info(rootPath);
       const dirents = readdirSync(rootPath, { withFileTypes: true });
