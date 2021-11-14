@@ -70,10 +70,10 @@ exports.globalInstall = globalInstall;
 function lsDebug(rootPath) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((0, fs_1.existsSync)(rootPath)) {
-            core.info(rootPath);
+            core.info(`Root Path: ${rootPath}`);
             const dirents = (0, fs_1.readdirSync)(rootPath, { withFileTypes: true });
             for (const dirent of dirents) {
-                core.info(dirent.name);
+                core.info(`- ${dirent.name}`);
             }
         }
         else {
@@ -109,7 +109,8 @@ function installPlugin(name) {
 }
 function resolveGlobal(importName) {
     try {
-        core.info((0, path_1.join)(GlobalNodemodules, importName));
+        core.info(`Import: ${importName}`);
+        core.info(`Dir: ${(0, path_1.join)(GlobalNodemodules, importName)}`);
         lsDebug((0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName)));
         return require.resolve((0, path_1.join)(GlobalNodemodules, importName));
     }

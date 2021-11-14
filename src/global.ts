@@ -39,10 +39,10 @@ export async function globalInstall(
 
 async function lsDebug(rootPath: string): Promise<void> {
   if (existsSync(rootPath)) {
-    core.info(rootPath);
+    core.info(`Root Path: ${rootPath}`);
     const dirents = readdirSync(rootPath, { withFileTypes: true });
     for (const dirent of dirents) {
-      core.info(dirent.name);
+      core.info(`- ${dirent.name}`);
     }
   } else {
     core.info(`Not found => ${rootPath}`);
@@ -76,7 +76,8 @@ async function installPlugin(
 
 function resolveGlobal(importName: string): string | undefined {
   try {
-    core.info(join(GlobalNodemodules, importName));
+    core.info(`Import: ${importName}`);
+    core.info(`Dir: ${join(GlobalNodemodules, importName)}`);
     lsDebug(dirname(join(GlobalNodemodules, importName)));
     return require.resolve(join(GlobalNodemodules, importName));
   } catch {
