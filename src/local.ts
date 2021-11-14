@@ -17,7 +17,6 @@ export async function localInstall(
     core.addPath(join(root, './node_modules/.bin'));
   });
 
-  core.startGroup('CPany Plugins');
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
@@ -28,7 +27,6 @@ export async function localInstall(
       core.setFailed(`CPany plugin: ${pluginName} => Not found`);
     }
   }
-  core.endGroup();
 }
 
 async function installDep(root: string): Promise<void> {

@@ -168,7 +168,6 @@ function localInstall(root, config) {
             yield installDep(root);
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));
         }));
-        core.startGroup('CPany Plugins');
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
@@ -178,7 +177,6 @@ function localInstall(root, config) {
                 core.setFailed(`CPany plugin: ${pluginName} => Not found`);
             }
         }
-        core.endGroup();
     });
 }
 exports.localInstall = localInstall;
