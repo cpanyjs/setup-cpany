@@ -32,6 +32,16 @@ export async function globalInstall(
   core.endGroup();
 
   await exec('npm ll -g --depth=0 --long');
+
+  {
+    const rootPath = '/usr/local/lib';
+    if (existsSync(rootPath)) {
+      core.info(rootPath);
+      core.info(`${lstatSync(rootPath)}`);
+    } else {
+      core.info(`Not found => ${rootPath}`);
+    }
+  }
 }
 
 async function installPlugin(
@@ -60,14 +70,6 @@ async function installPlugin(
 }
 
 function resolveGlobal(importName: string): string | undefined {
-  const rootPath = dirname(GlobalNodemodules);
-  if (existsSync(rootPath)) {
-    core.info(rootPath);
-    core.info(`${lstatSync(rootPath)}`);
-  } else {
-    core.info(`Not found => ${rootPath}`);
-  }
-
   try {
     const path = dirname(join(GlobalNodemodules, importName));
     if (existsSync(path)) {

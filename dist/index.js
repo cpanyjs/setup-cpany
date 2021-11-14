@@ -61,6 +61,16 @@ function globalInstall(root, config) {
         }
         core.endGroup();
         yield (0, exec_1.exec)('npm ll -g --depth=0 --long');
+        {
+            const rootPath = '/usr/local/lib';
+            if ((0, fs_1.existsSync)(rootPath)) {
+                core.info(rootPath);
+                core.info(`${(0, fs_1.lstatSync)(rootPath)}`);
+            }
+            else {
+                core.info(`Not found => ${rootPath}`);
+            }
+        }
     });
 }
 exports.globalInstall = globalInstall;
@@ -91,14 +101,6 @@ function installPlugin(name) {
     });
 }
 function resolveGlobal(importName) {
-    const rootPath = (0, path_1.dirname)(GlobalNodemodules);
-    if ((0, fs_1.existsSync)(rootPath)) {
-        core.info(rootPath);
-        core.info(`${(0, fs_1.lstatSync)(rootPath)}`);
-    }
-    else {
-        core.info(`Not found => ${rootPath}`);
-    }
     try {
         const path = (0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName));
         if ((0, fs_1.existsSync)(path)) {
