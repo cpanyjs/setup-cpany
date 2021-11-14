@@ -37,6 +37,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.globalInstall = void 0;
 const path_1 = __nccwpck_require__(5622);
+const fs_1 = __nccwpck_require__(5747);
 const core = __importStar(__nccwpck_require__(5924));
 const exec_1 = __nccwpck_require__(3531);
 const global_dirs_1 = __nccwpck_require__(2568);
@@ -89,7 +90,23 @@ function installPlugin(name) {
     });
 }
 function resolveGlobal(importName) {
+    const rootPath = (0, path_1.dirname)(GlobalNodemodules);
+    if ((0, fs_1.existsSync)(rootPath)) {
+        core.info(rootPath);
+        core.info(`${(0, fs_1.lstatSync)(rootPath)}`);
+    }
+    else {
+        core.info(`Not found => ${rootPath}`);
+    }
     try {
+        const path = (0, path_1.dirname)((0, path_1.join)(GlobalNodemodules, importName));
+        if ((0, fs_1.existsSync)(path)) {
+            core.info(path);
+            core.info(`${(0, fs_1.lstatSync)(path)}`);
+        }
+        else {
+            core.info(`Not found => ${path}`);
+        }
         return require.resolve((0, path_1.join)(GlobalNodemodules, importName));
     }
     catch (_a) {

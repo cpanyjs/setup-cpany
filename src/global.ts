@@ -1,4 +1,5 @@
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { existsSync, lstatSync } from 'fs';
 
 import * as core from '@actions/core';
 import { exec, getExecOutput } from '@actions/exec';
@@ -57,7 +58,22 @@ async function installPlugin(
 }
 
 function resolveGlobal(importName: string): string | undefined {
+  const rootPath = dirname(GlobalNodemodules);
+  if (existsSync(rootPath)) {
+    core.info(rootPath);
+    core.info(`${lstatSync(rootPath)}`);
+  } else {
+    core.info(`Not found => ${rootPath}`);
+  }
+
   try {
+    const path = dirname(join(GlobalNodemodules, importName));
+    if (existsSync(path)) {
+      core.info(path);
+      core.info(`${lstatSync(path)}`);
+    } else {
+      core.info(`Not found => ${path}`);
+    }
     return require.resolve(join(GlobalNodemodules, importName));
   } catch {
     // Resolve global node_modules
