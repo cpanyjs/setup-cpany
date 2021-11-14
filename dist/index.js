@@ -81,7 +81,7 @@ function installPlugin(name) {
                 return { name: pluginName, directory: preResolvedPlugin };
             }
             else if (yield (0, utils_1.packageExists)(pluginName)) {
-                yield core.group(`Install ${pluginName} globally`, () => __awaiter(this, void 0, void 0, function* () {
+                yield core.group(`Install ${(0, kolorist_1.lightGreen)(pluginName)} globally`, () => __awaiter(this, void 0, void 0, function* () {
                     yield (0, exec_1.exec)('npm', ['install', '-g', pluginName]);
                 }));
                 const pluginDir = resolveGlobal(`${pluginName}/package.json`);

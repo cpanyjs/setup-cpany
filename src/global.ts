@@ -57,9 +57,12 @@ async function installPlugin(
     if (preResolvedPlugin) {
       return { name: pluginName, directory: preResolvedPlugin };
     } else if (await packageExists(pluginName)) {
-      await core.group(`Install ${pluginName} globally`, async () => {
-        await exec('npm', ['install', '-g', pluginName]);
-      });
+      await core.group(
+        `Install ${lightGreen(pluginName)} globally`,
+        async () => {
+          await exec('npm', ['install', '-g', pluginName]);
+        }
+      );
       const pluginDir = resolveGlobal(`${pluginName}/package.json`);
       if (pluginDir) {
         return { name: pluginName, directory: pluginDir };
