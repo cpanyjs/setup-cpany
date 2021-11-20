@@ -59,7 +59,7 @@ function globalInstall(root, config) {
                 plugins.push(resolvedPlugin);
             }
             else {
-                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => Not found`);
+                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
         for (const resolvedPlugin of plugins) {
@@ -178,7 +178,7 @@ function localInstall(root, config) {
                 core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
             }
             else {
-                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => Not found`);
+                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
     });

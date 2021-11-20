@@ -3,7 +3,7 @@ import { join } from 'path';
 import * as core from '@actions/core';
 import { exec, getExecOutput } from '@actions/exec';
 import { npm, yarn } from 'global-dirs';
-import { lightGreen, underline, yellow } from 'kolorist';
+import { red, lightGreen, underline, yellow } from 'kolorist';
 
 import type { ICPanyConfig, IResolvedPlugin } from './types';
 import { packageExists } from './utils';
@@ -31,7 +31,9 @@ export async function globalInstall(
     if (resolvedPlugin) {
       plugins.push(resolvedPlugin);
     } else {
-      core.setFailed(`CPany plugin: ${lightGreen(pluginName)} => Not found`);
+      core.setFailed(
+        `CPany plugin: ${lightGreen(pluginName)} => ${red('Not found')}`
+      );
     }
   }
 
