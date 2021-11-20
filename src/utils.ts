@@ -85,7 +85,6 @@ export function resolveCPanyPlugin(
 ): IResolvedPlugin | undefined {
   for (const plugin of [
     name,
-    `@cpany/${name}`,
     `@cpany/plugin-${name}`,
     `cpany-plugin-${name}`
   ]) {

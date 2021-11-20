@@ -72,7 +72,6 @@ function installPlugin(name) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const pluginName of [
             name,
-            `@cpany/${name}`,
             `@cpany/plugin-${name}`,
             `cpany-plugin-${name}`
         ]) {
@@ -390,7 +389,6 @@ exports.resolveImportPath = resolveImportPath;
 function resolveCPanyPlugin(name, root) {
     for (const plugin of [
         name,
-        `@cpany/${name}`,
         `@cpany/plugin-${name}`,
         `cpany-plugin-${name}`
     ]) {

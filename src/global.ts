@@ -49,7 +49,6 @@ async function installPlugin(
 ): Promise<IResolvedPlugin | undefined> {
   for (const pluginName of [
     name,
-    `@cpany/${name}`,
     `@cpany/plugin-${name}`,
     `cpany-plugin-${name}`
   ]) {
