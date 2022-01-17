@@ -62,6 +62,10 @@ function globalInstall(root, config) {
                 core.setFailed(`CPany plugin ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
+        {
+            const cli = resolveGlobal('@cpany/cli');
+            core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli)}`)}`);
+        }
         for (const resolvedPlugin of plugins) {
             core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
         }
