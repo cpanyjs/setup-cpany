@@ -38,8 +38,10 @@ export async function globalInstall(
   }
 
   {
-    const cli = resolveGlobal('@cpany/cli')!;
-    core.info(`Cli    ${lightGreen(`@cpany/cli:${packageVersion(cli)}`)}`);
+    const cli = resolveGlobal('@cpany/cli/package.version')!;
+    core.info(
+      `Cli    ${lightGreen(`@cpany/cli:${packageVersion(dirname(cli))}`)}`
+    );
   }
 
   for (const resolvedPlugin of plugins) {

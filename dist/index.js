@@ -63,8 +63,8 @@ function globalInstall(root, config) {
             }
         }
         {
-            const cli = resolveGlobal('@cpany/cli');
-            core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli)}`)}`);
+            const cli = resolveGlobal('@cpany/cli/package.version');
+            core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)((0, path_1.dirname)(cli))}`)}`);
         }
         for (const resolvedPlugin of plugins) {
             core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
