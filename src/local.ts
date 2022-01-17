@@ -58,7 +58,11 @@ export async function localInstall(
 
   if (hitCacheKey !== `cpany-local-${version}`) {
     await core.group(`Cache CPany v${version}`, async () => {
-      await cache.saveCache(paths, `cpany-local-${version}`);
+      try {
+        await cache.saveCache(paths, `cpany-local-${version}`);
+      } catch {
+        core.info('Cache fail');
+      }
     });
   }
 }

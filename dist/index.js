@@ -52,7 +52,9 @@ function globalInstall(_root, config) {
         core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
         const paths = ['node_modules', GlobalNodemodules];
         core.startGroup('Restore cache');
-        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-global-', ['cpany-global-']);
+        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-global-', [
+            'cpany-global-'
+        ]);
         core.endGroup();
         if (hitCacheKey) {
             core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
@@ -186,7 +188,9 @@ function localInstall(root, config) {
     return __awaiter(this, void 0, void 0, function* () {
         const paths = ['node_modules'];
         core.startGroup('Restore cache');
-        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-local-', ['cpany-local-']);
+        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-local-', [
+            'cpany-local-'
+        ]);
         core.endGroup();
         if (hitCacheKey) {
             core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
@@ -216,7 +220,12 @@ function localInstall(root, config) {
         }
         if (hitCacheKey !== `cpany-local-${version}`) {
             yield core.group(`Cache CPany v${version}`, () => __awaiter(this, void 0, void 0, function* () {
-                yield cache.saveCache(paths, `cpany-local-${version}`);
+                try {
+                    yield cache.saveCache(paths, `cpany-local-${version}`);
+                }
+                catch (_b) {
+                    core.info('Cache fail');
+                }
             }));
         }
     });
