@@ -27,7 +27,7 @@ export async function localInstall(
   if (hitCacheKey) {
     core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
   }
-  
+
   await core.group('Install dependency', async () => {
     await installDep(root);
   });
