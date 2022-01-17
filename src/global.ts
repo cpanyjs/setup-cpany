@@ -1,7 +1,6 @@
 import { join, dirname } from 'path';
 
 import * as core from '@actions/core';
-import * as cache from '@actions/cache';
 import { exec, getExecOutput } from '@actions/exec';
 import { npm, yarn } from 'global-dirs';
 import { red, lightGreen, underline, yellow } from 'kolorist';
@@ -21,16 +20,6 @@ export async function globalInstall(
     await getExecOutput('npm', ['root', '-g'], { silent: true })
   ).stdout.trim();
   core.info(`Global node_modules: ${underline(GlobalNodemodules)}`);
-
-  const paths = ['node_modules', GlobalNodemodules];
-  core.startGroup('Restore cache');
-  const hitCacheKey = await cache.restoreCache(paths, 'cpany-global-', [
-    'cpany-global-'
-  ]);
-  core.endGroup();
-  if (hitCacheKey) {
-    core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
-  }
 
   await core.group(`Install ${lightGreen('@cpany/cli')}`, async () => {
     await exec('npm', ['install', '-g', '@cpany/cli']);
@@ -63,12 +52,6 @@ export async function globalInstall(
         )}`
       )}${pathLog}`
     );
-  }
-
-  if (hitCacheKey !== `cpany-global-${version}`) {
-    await core.group(`Cache CPany v${version}`, async () => {
-      await cache.saveCache(paths, `cpany-global-${version}`);
-    });
   }
 }
 

@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.globalInstall = void 0;
 const path_1 = __nccwpck_require__(1017);
 const core = __importStar(__nccwpck_require__(6744));
-const cache = __importStar(__nccwpck_require__(1026));
 const exec_1 = __nccwpck_require__(4919);
 const global_dirs_1 = __nccwpck_require__(957);
 const kolorist_1 = __nccwpck_require__(1163);
@@ -50,15 +49,6 @@ function globalInstall(_root, config) {
         core.info(`Setup ${(0, kolorist_1.yellow)('Global')} CPany`);
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
         core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
-        const paths = ['node_modules', GlobalNodemodules];
-        core.startGroup('Restore cache');
-        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-global-', [
-            'cpany-global-'
-        ]);
-        core.endGroup();
-        if (hitCacheKey) {
-            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
-        }
         yield core.group(`Install ${(0, kolorist_1.lightGreen)('@cpany/cli')}`, () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
         }));
@@ -80,11 +70,6 @@ function globalInstall(_root, config) {
                 ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`
                 : '';
             core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)}${pathLog}`);
-        }
-        if (hitCacheKey !== `cpany-global-${version}`) {
-            yield core.group(`Cache CPany v${version}`, () => __awaiter(this, void 0, void 0, function* () {
-                yield cache.saveCache(paths, `cpany-global-${version}`);
-            }));
         }
     });
 }
