@@ -6,7 +6,7 @@ import { npm, yarn } from 'global-dirs';
 import { red, lightGreen, underline, yellow } from 'kolorist';
 
 import type { ICPanyConfig, IResolvedPlugin } from './types';
-import { packageExists } from './utils';
+import { packageExists, packageVersion } from './utils';
 
 let GlobalNodemodules = npm.packages;
 
@@ -32,16 +32,16 @@ export async function globalInstall(
       plugins.push(resolvedPlugin);
     } else {
       core.setFailed(
-        `CPany plugin: ${lightGreen(pluginName)} => ${red('Not found')}`
+        `CPany plugin ${lightGreen(pluginName)} => ${red('Not found')}`
       );
     }
   }
 
   for (const resolvedPlugin of plugins) {
     core.info(
-      `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${underline(
-        resolvedPlugin.directory
-      )}`
+      `Plugin ${lightGreen(
+        `${resolvedPlugin.name}:${packageVersion(resolvedPlugin.directory)}`
+      )} => ${underline(resolvedPlugin.directory)}`
     );
   }
 }

@@ -59,11 +59,11 @@ function globalInstall(root, config) {
                 plugins.push(resolvedPlugin);
             }
             else {
-                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
+                core.setFailed(`CPany plugin ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
         for (const resolvedPlugin of plugins) {
-            core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
+            core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
         }
     });
 }
@@ -177,7 +177,7 @@ function localInstall(root, config) {
         }));
         {
             const cli = (0, utils_1.resolveCPanyPlugin)('@cpany/cli', root);
-            core.info(`Cli  : ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli.directory)}`)}`);
+            core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli.directory)}`)}`);
         }
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
@@ -185,10 +185,10 @@ function localInstall(root, config) {
                 const pathLog = isVerbose()
                     ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`
                     : '';
-                core.info(`Plugin: ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
+                core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
             }
             else {
-                core.error(`Plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
+                core.error(`Plugin ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
     });

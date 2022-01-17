@@ -27,7 +27,7 @@ export async function localInstall(
   {
     const cli = resolveCPanyPlugin('@cpany/cli', root)!;
     core.info(
-      `Cli  : ${lightGreen(`@cpany/cli:${packageVersion(cli.directory)}`)}`
+      `Cli    ${lightGreen(`@cpany/cli:${packageVersion(cli.directory)}`)}`
     );
   }
 
@@ -38,12 +38,12 @@ export async function localInstall(
         ? ` => ${underline(resolvedPlugin.directory)}`
         : '';
       core.info(
-        `Plugin: ${lightGreen(
+        `Plugin ${lightGreen(
           `${resolvedPlugin.name}:${packageVersion(resolvedPlugin.directory)}`
         )}${pathLog}`
       );
     } else {
-      core.error(`Plugin: ${lightGreen(pluginName)} => ${red('Not found')}`);
+      core.error(`Plugin ${lightGreen(pluginName)} => ${red('Not found')}`);
     }
   }
 }
