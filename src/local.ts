@@ -26,12 +26,11 @@ export async function localInstall(
 
   if (hitCacheKey) {
     core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
-  } else {
-    await core.group('Install dependency', async () => {
-      await installDep(root);
-    });
   }
-
+  
+  await core.group('Install dependency', async () => {
+    await installDep(root);
+  });
   core.addPath(join(root, './node_modules/.bin'));
   if (!cmdExists('cpany')) {
     core.setFailed(`@cpany/cli is not installed.`);
