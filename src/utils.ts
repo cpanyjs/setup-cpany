@@ -1,5 +1,6 @@
 import os from 'os';
 import fs from 'fs';
+import * as core from '@actions/core';
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 
@@ -8,6 +9,10 @@ import { sync as resolve } from 'resolve';
 import { npm, yarn } from 'global-dirs';
 
 import type { IResolvedPlugin } from './types';
+
+export function isVerbose(): boolean {
+  return core.getInput('verbose') === 'true';
+}
 
 export function cmdExists(cmd: string): boolean {
   try {

@@ -5,11 +5,12 @@ import * as core from '@actions/core';
 import { red, lightGreen, underline } from 'kolorist';
 
 import { ICPanyConfig } from './types';
-import { cmdExists, packageVersion, resolveCPanyPlugin } from './utils';
-
-function isVerbose(): boolean {
-  return core.getInput('verbose') === 'true';
-}
+import {
+  cmdExists,
+  isVerbose,
+  packageVersion,
+  resolveCPanyPlugin
+} from './utils';
 
 export async function localInstall(
   root: string,

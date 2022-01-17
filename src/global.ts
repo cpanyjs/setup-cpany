@@ -6,7 +6,7 @@ import { npm, yarn } from 'global-dirs';
 import { red, lightGreen, underline, yellow } from 'kolorist';
 
 import type { ICPanyConfig, IResolvedPlugin } from './types';
-import { packageExists, packageVersion } from './utils';
+import { isVerbose, packageExists, packageVersion } from './utils';
 
 let GlobalNodemodules = npm.packages;
 
@@ -47,12 +47,15 @@ export async function globalInstall(
   }
 
   for (const resolvedPlugin of plugins) {
+    const pathLog = isVerbose()
+      ? ` => ${underline(resolvedPlugin.directory)}`
+      : '';
     core.info(
       `Plugin ${lightGreen(
         `${resolvedPlugin.name}:${packageVersion(
           dirname(resolvedPlugin.directory)
         )}`
-      )} => ${underline(resolvedPlugin.directory)}`
+      )}${pathLog}`
     );
   }
 }

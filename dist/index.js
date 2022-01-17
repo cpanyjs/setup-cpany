@@ -67,7 +67,8 @@ function globalInstall(root, config) {
             core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)((0, path_1.dirname)((0, path_1.dirname)(cli)))}`)}`);
         }
         for (const resolvedPlugin of plugins) {
-            core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
+            const pathLog = (0, utils_1.isVerbose)() ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}` : '';
+            core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)}${pathLog}`);
         }
     });
 }
@@ -165,9 +166,6 @@ const exec_1 = __nccwpck_require__(4919);
 const core = __importStar(__nccwpck_require__(6744));
 const kolorist_1 = __nccwpck_require__(1163);
 const utils_1 = __nccwpck_require__(6389);
-function isVerbose() {
-    return core.getInput('verbose') === 'true';
-}
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -186,7 +184,7 @@ function localInstall(root, config) {
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
-                const pathLog = isVerbose()
+                const pathLog = (0, utils_1.isVerbose)()
                     ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`
                     : '';
                 core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
@@ -321,6 +319,25 @@ run();
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -334,14 +351,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveCPanyPlugin = exports.resolveImportPath = exports.packageVersion = exports.packageExists = exports.cmdExists = void 0;
+exports.resolveCPanyPlugin = exports.resolveImportPath = exports.packageVersion = exports.packageExists = exports.cmdExists = exports.isVerbose = void 0;
 const os_1 = __importDefault(__nccwpck_require__(2037));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
+const core = __importStar(__nccwpck_require__(6744));
 const path_1 = __nccwpck_require__(1017);
 const child_process_1 = __nccwpck_require__(2081);
 const exec_1 = __nccwpck_require__(4919);
 const resolve_1 = __nccwpck_require__(1462);
 const global_dirs_1 = __nccwpck_require__(957);
+function isVerbose() {
+    return core.getInput('verbose') === 'true';
+}
+exports.isVerbose = isVerbose;
 function cmdExists(cmd) {
     try {
         (0, child_process_1.execSync)(os_1.default.platform() === 'win32'
