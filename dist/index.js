@@ -204,7 +204,7 @@ function localInstall(root, config) {
             }
         }
         if (hitCacheKey !== `cpany-local-${version}`) {
-            yield core.group(`Cache CPany v${version}`, () => __awaiter(this, void 0, void 0, function* () {
+            yield core.group(`Cache CPany ${(0, kolorist_1.lightGreen)(`v${version}`)}`, () => __awaiter(this, void 0, void 0, function* () {
                 try {
                     yield cache.saveCache(paths, `cpany-local-${version}`);
                 }
@@ -219,19 +219,19 @@ exports.localInstall = localInstall;
 function installDep(root) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((0, fs_1.existsSync)((0, path_1.join)(root, 'package-lock.json'))) {
-            yield (0, exec_1.exec)('npm', ['install'], { cwd: root });
+            yield (0, exec_1.exec)('npm', ['ci'], { cwd: root });
         }
         else if ((0, fs_1.existsSync)((0, path_1.join)(root, 'pnpm-lock.yaml'))) {
             if (!(0, utils_1.cmdExists)('pnpm')) {
                 yield (0, exec_1.exec)('npm', ['install', '-g', 'pnpm']);
             }
-            yield (0, exec_1.exec)('pnpm', ['install'], { cwd: root });
+            yield (0, exec_1.exec)('pnpm', ['install', '--frozen-lockfile'], { cwd: root });
         }
         else if ((0, fs_1.existsSync)((0, path_1.join)(root, 'yarn.lock'))) {
             if (!(0, utils_1.cmdExists)('yarn')) {
                 yield (0, exec_1.exec)('npm', ['install', '-g', 'yarn']);
             }
-            yield (0, exec_1.exec)('yarn', ['install'], { cwd: root });
+            yield (0, exec_1.exec)('yarn', ['install', '--frozen-lockfile'], { cwd: root });
         }
         else {
             core.setFailed(`No package manager has been detected.`);

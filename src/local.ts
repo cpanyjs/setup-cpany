@@ -57,7 +57,7 @@ export async function localInstall(
   }
 
   if (hitCacheKey !== `cpany-local-${version}`) {
-    await core.group(`Cache CPany v${version}`, async () => {
+    await core.group(`Cache CPany ${lightGreen(`v${version}`)}`, async () => {
       try {
         await cache.saveCache(paths, `cpany-local-${version}`);
       } catch {
@@ -69,17 +69,17 @@ export async function localInstall(
 
 async function installDep(root: string): Promise<void> {
   if (existsSync(join(root, 'package-lock.json'))) {
-    await exec('npm', ['install'], { cwd: root });
+    await exec('npm', ['ci'], { cwd: root });
   } else if (existsSync(join(root, 'pnpm-lock.yaml'))) {
     if (!cmdExists('pnpm')) {
       await exec('npm', ['install', '-g', 'pnpm']);
     }
-    await exec('pnpm', ['install'], { cwd: root });
+    await exec('pnpm', ['install', '--frozen-lockfile'], { cwd: root });
   } else if (existsSync(join(root, 'yarn.lock'))) {
     if (!cmdExists('yarn')) {
       await exec('npm', ['install', '-g', 'yarn']);
     }
-    await exec('yarn', ['install'], { cwd: root });
+    await exec('yarn', ['install', '--frozen-lockfile'], { cwd: root });
   } else {
     core.setFailed(`No package manager has been detected.`);
     process.exit(1);
