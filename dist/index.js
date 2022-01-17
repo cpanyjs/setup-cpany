@@ -63,7 +63,7 @@ function globalInstall(root, config) {
             }
         }
         for (const resolvedPlugin of plugins) {
-            core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
+            core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
         }
     });
 }

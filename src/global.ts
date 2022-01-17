@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join, dirname } from 'path';
 
 import * as core from '@actions/core';
 import { exec, getExecOutput } from '@actions/exec';
@@ -40,7 +40,9 @@ export async function globalInstall(
   for (const resolvedPlugin of plugins) {
     core.info(
       `Plugin ${lightGreen(
-        `${resolvedPlugin.name}:${packageVersion(resolvedPlugin.directory)}`
+        `${resolvedPlugin.name}:${packageVersion(
+          dirname(resolvedPlugin.directory)
+        )}`
       )} => ${underline(resolvedPlugin.directory)}`
     );
   }
