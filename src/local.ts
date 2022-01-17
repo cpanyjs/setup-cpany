@@ -15,8 +15,6 @@ export async function localInstall(
   root: string,
   config: ICPanyConfig
 ): Promise<void> {
-  core.info('Setup CPany');
-
   await core.group('Install dependency', async () => {
     await installDep(root);
     core.addPath(join(root, './node_modules/.bin'));
@@ -26,6 +24,13 @@ export async function localInstall(
     }
   });
 
+  {
+    const cli = resolveCPanyPlugin('@cpany/cli', root)!;
+    core.info(
+      `Cli  : ${lightGreen(`@cpany/cli:${packageVersion(cli.directory)}`)}`
+    );
+  }
+
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
@@ -33,14 +38,12 @@ export async function localInstall(
         ? ` => ${underline(resolvedPlugin.directory)}`
         : '';
       core.info(
-        `CPany plugin: ${lightGreen(
+        `Plugin: ${lightGreen(
           `${resolvedPlugin.name}:${packageVersion(resolvedPlugin.directory)}`
         )}${pathLog}`
       );
     } else {
-      core.error(
-        `CPany plugin: ${lightGreen(pluginName)} => ${red('Not found')}`
-      );
+      core.error(`Plugin: ${lightGreen(pluginName)} => ${red('Not found')}`);
     }
   }
 }

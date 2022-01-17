@@ -167,7 +167,6 @@ function isVerbose() {
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('Setup CPany');
         yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));
@@ -176,16 +175,20 @@ function localInstall(root, config) {
                 process.exit(1);
             }
         }));
+        {
+            const cli = (0, utils_1.resolveCPanyPlugin)('@cpany/cli', root);
+            core.info(`Cli  : ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli.directory)}`)}`);
+        }
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
                 const pathLog = isVerbose()
                     ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`
                     : '';
-                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
+                core.info(`Plugin: ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
             }
             else {
-                core.error(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
+                core.error(`Plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
     });
