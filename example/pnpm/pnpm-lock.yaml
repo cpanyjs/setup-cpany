@@ -1,14 +1,14 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@cpany/cli': 0.1.1
-  '@cpany/plugin-codeforces': 0.1.1
-  '@cpany/plugin-hdu': 0.1.1
+  '@cpany/cli': 0.1.10
+  '@cpany/plugin-codeforces': 0.1.10
+  '@cpany/plugin-hdu': 0.1.10
 
 dependencies:
-  '@cpany/cli': 0.1.1_6efec9eb1f257dd90f4521a5f2a6a25b
-  '@cpany/plugin-codeforces': 0.1.1
-  '@cpany/plugin-hdu': 0.1.1
+  '@cpany/cli': 0.1.10_@cpany+plugin-hdu@0.1.10
+  '@cpany/plugin-codeforces': 0.1.10
+  '@cpany/plugin-hdu': 0.1.10
 
 packages:
 
@@ -46,12 +46,14 @@ packages:
     hasBin: true
     dev: false
 
-  /@cpany/app/0.1.1_vite@2.6.14:
-    resolution: {integrity: sha512-dEDY1wd6Hn8FjLIeMo7mlavQ8bmjJeguK8Vpm0CmCqCEvNyIpsxdgtM375oKz5N7OLk+m8oNkFxkCXkkIOEwRw==}
+  /@cpany/app/0.1.10_vite@2.6.14:
+    resolution: {integrity: sha512-y7V6Aq9SsuT3SXHMG8PBKlbIo18TWpzsR/B7Y0Vw0j8BEtYeHZV5Eg1Gsa8WFkb2wh1ehPDPhsdnuOO1uIoTIA==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      '@cpany/compress': 0.1.1_vite@2.6.14
-      '@cpany/types': 0.1.1
+      '@cpany/compress': 0.1.10_vite@2.6.14
+      '@cpany/types': 0.1.10
+      date-fns: 2.26.0
+      date-fns-tz: 1.1.6_date-fns@2.26.0
       tippy.js: 6.3.7
       vue: 3.2.21
       vue-router: 4.0.12_vue@3.2.21
@@ -59,15 +61,14 @@ packages:
       - vite
     dev: false
 
-  /@cpany/cli/0.1.1_6efec9eb1f257dd90f4521a5f2a6a25b:
-    resolution: {integrity: sha512-vcCmpD6yTGXpbwIsOVifAZpYnUccjdT41jLG7pqYxF0SlIq6GEPs8zcuRIV2A6m5KWfPHJd13lDuPxuRtvN6Zw==}
+  /@cpany/cli/0.1.10_@cpany+plugin-hdu@0.1.10:
+    resolution: {integrity: sha512-VI/7uMU9gztJ09LZ0N1gF9Sj+qQ9V9TU+FowFgRbfBP3w6n7rRR0LEYfLwsrFIKkBixj3TUpQuKfg7EifAuhxA==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     peerDependencies:
-      '@cpany/plugin-atcoder': 0.1.1
-      '@cpany/plugin-codeforces': 0.1.1
-      '@cpany/plugin-hdu': 0.1.1
-      '@cpany/plugin-luogu': 0.1.1
+      '@cpany/plugin-atcoder': 0.1.10
+      '@cpany/plugin-hdu': 0.1.10
+      '@cpany/plugin-luogu': 0.1.10
       capture-website-cli: ^2.1.0
     peerDependenciesMeta:
       '@cpany/plugin-atcoder':
@@ -84,13 +85,13 @@ packages:
       '@actions/core': 1.6.0
       '@actions/exec': 1.1.0
       '@actions/io': 1.1.1
-      '@cpany/app': 0.1.1_vite@2.6.14
-      '@cpany/compress': 0.1.1_vite@2.6.14
-      '@cpany/core': 0.1.1
-      '@cpany/plugin-codeforces': 0.1.1
-      '@cpany/plugin-hdu': 0.1.1
-      '@cpany/types': 0.1.1
-      '@cpany/utils': 0.1.1
+      '@cpany/app': 0.1.10_vite@2.6.14
+      '@cpany/compress': 0.1.10_vite@2.6.14
+      '@cpany/core': 0.1.10
+      '@cpany/plugin-codeforces': 0.1.10_debug@4.3.2
+      '@cpany/plugin-hdu': 0.1.10
+      '@cpany/types': 0.1.10
+      '@cpany/utils': 0.1.10
       '@iconify/json': 1.1.427
       '@vitejs/plugin-vue': 1.9.4_vite@2.6.14
       '@vue/compiler-sfc': 3.2.21
@@ -124,8 +125,8 @@ packages:
       - webpack
     dev: false
 
-  /@cpany/compress/0.1.1_vite@2.6.14:
-    resolution: {integrity: sha512-CZAN9pakUyqeivKV4cCsNy5LRjUWQZ8ws2WLG4TM4EjveHXE3yTnwhgsdQjMPjZhD7N96/8KX/38DUVCKu6NoQ==}
+  /@cpany/compress/0.1.10_vite@2.6.14:
+    resolution: {integrity: sha512-88k/INL/LFvXGHKjp9wYPw3k6Ql1WG7f6H3qvsNdEiThz4xR47Ohazu+NOUOGiHJRq3sqR+vnkaiE/MJpGVADA==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       vite: '>=2.5.10'
@@ -133,32 +134,42 @@ packages:
       vite: 2.6.14
     dev: false
 
-  /@cpany/core/0.1.1:
-    resolution: {integrity: sha512-XrFUda1E069WW2L/1Hd18F22ld6dvIWp3wxZhv2tiuttfkFS93rMP4kr+e2R9cvuWM2c4bMwb/fo+/2Uhp010A==}
+  /@cpany/core/0.1.10:
+    resolution: {integrity: sha512-GfGoL/jND9LktxQUBwIpFaM0d2sF95bewr9HYlrnfooFGrzZHbHfkze5PKCQ4jaejOU/0/ulhCroHDTQ0j5mbg==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      random-js: 2.1.0
+      '@cpany/types': 0.1.10
+      kolorist: 1.5.0
     dev: false
 
-  /@cpany/plugin-codeforces/0.1.1:
-    resolution: {integrity: sha512-4wtqAMuvpwzydZu2NVxUkFW9vEWOX7tr3NObUhyLvQuVqAoYGnhDDLu43SFC5LwiMMvVXWIrPqIec5NoDE+c0w==}
+  /@cpany/plugin-codeforces/0.1.10:
+    resolution: {integrity: sha512-fjByVhky7lmxUeha6C2GDlv0GG0tj69UkAEPjez71G9/9lbjaDZfTYvet3YUU+yyaWIqz2aPmmR/0CHDtfwe/Q==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      '@cpany/core': 0.1.1
-      '@cpany/types': 0.1.1
-      '@cpany/utils': 0.1.1
+      '@cpany/core': 0.1.10
+      '@cpany/types': 0.1.10
       axios: 0.21.4
     transitivePeerDependencies:
       - debug
     dev: false
 
-  /@cpany/plugin-hdu/0.1.1:
-    resolution: {integrity: sha512-aZrbsPrNxsKMg1qjy2APOBFRXMtIBzV4AFV5nvXRCH3ldNLJQ06sUViWYN7lzqzR39P6mXU8JV+SyOeItPbP0Q==}
+  /@cpany/plugin-codeforces/0.1.10_debug@4.3.2:
+    resolution: {integrity: sha512-fjByVhky7lmxUeha6C2GDlv0GG0tj69UkAEPjez71G9/9lbjaDZfTYvet3YUU+yyaWIqz2aPmmR/0CHDtfwe/Q==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      '@cpany/core': 0.1.1
-      '@cpany/types': 0.1.1
-      '@cpany/utils': 0.1.1
+      '@cpany/core': 0.1.10
+      '@cpany/types': 0.1.10
+      axios: 0.21.4_debug@4.3.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@cpany/plugin-hdu/0.1.10:
+    resolution: {integrity: sha512-anWAm4MghJFePL8eawxSGjk5OfUPHyoUCwhuko73OTxiev/tQp2y4hNWWwROvAI/ws0EZSrtb62HVrxP0ljSNQ==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      '@cpany/core': 0.1.10
+      '@cpany/types': 0.1.10
       axios: 0.21.4
       iconv-lite: 0.6.3
       node-html-parser: 4.1.5
@@ -166,13 +177,13 @@ packages:
       - debug
     dev: false
 
-  /@cpany/types/0.1.1:
-    resolution: {integrity: sha512-WwIP/lP90axY08M4nR2OTRt9hFxXGfCfkSGeYoN8pxOy+BxieUG7rEymVjR6jzkE45+Ic8nFixXTC6vR+h157A==}
+  /@cpany/types/0.1.10:
+    resolution: {integrity: sha512-CR1AOyTrK6aCnAzhQx13uFBf7Nrn4hMIu7qJ/yXt3RdYtxnLVw0hdL6jvvnF2GX5kkkHp8dvGX8UZg2sOiOk7A==}
     engines: {node: '>=12.0.0'}
     dev: false
 
-  /@cpany/utils/0.1.1:
-    resolution: {integrity: sha512-HPMHzhRDvXc1UcfFAgqueCjZ6R5CLxgfiqYp0B1yPuVN+8Nw4ozyFwjnPW5VVfL966VBMO4AtBoag68RnELtzg==}
+  /@cpany/utils/0.1.10:
+    resolution: {integrity: sha512-gOfrpKfwZk5UFTVgyTbtTcUcfbmQo8lArux205N5ZAXmT0oAod3v5apZtz3vhsliRvp9lxxOTrC/sOybcoKA3Q==}
     engines: {node: '>=12.0.0'}
     dev: false
 
@@ -353,6 +364,14 @@ packages:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
       follow-redirects: 1.14.5
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios/0.21.4_debug@4.3.2:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+    dependencies:
+      follow-redirects: 1.14.5_debug@4.3.2
     transitivePeerDependencies:
       - debug
     dev: false
@@ -736,6 +755,18 @@ packages:
         optional: true
     dev: false
 
+  /follow-redirects/1.14.5_debug@4.3.2:
+    resolution: {integrity: sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dependencies:
+      debug: 4.3.2
+    dev: false
+
   /fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1034,10 +1065,6 @@ packages:
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-    dev: false
-
-  /random-js/2.1.0:
-    resolution: {integrity: sha512-CRUyWmnzmZBA7RZSVGq0xMqmgCyPPxbiKNLFA5ud7KenojVX2s7Gv+V7eB52beKTPGxWRnVZ7D/tCIgYJJ8vNQ==}
     dev: false
 
   /readable-stream/3.6.0:
