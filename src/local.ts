@@ -23,18 +23,20 @@ export async function localInstall(
     'cpany-local-'
   ]);
   core.endGroup();
+
   if (hitCacheKey) {
     core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
+  } else {
+    await core.group('Install dependency', async () => {
+      await installDep(root);
+    });
   }
 
-  await core.group('Install dependency', async () => {
-    await installDep(root);
-    core.addPath(join(root, './node_modules/.bin'));
-    if (!cmdExists('cpany')) {
-      core.setFailed(`@cpany/cli is not installed.`);
-      process.exit(1);
-    }
-  });
+  core.addPath(join(root, './node_modules/.bin'));
+  if (!cmdExists('cpany')) {
+    core.setFailed(`@cpany/cli is not installed.`);
+    process.exit(1);
+  }
 
   const cli = resolveCPanyPlugin('@cpany/cli', root)!;
   const version = packageVersion(cli.directory);

@@ -180,14 +180,16 @@ function localInstall(root, config) {
         if (hitCacheKey) {
             core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
         }
-        yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
-            yield installDep(root);
-            core.addPath((0, path_1.join)(root, './node_modules/.bin'));
-            if (!(0, utils_1.cmdExists)('cpany')) {
-                core.setFailed(`@cpany/cli is not installed.`);
-                process.exit(1);
-            }
-        }));
+        else {
+            yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
+                yield installDep(root);
+            }));
+        }
+        core.addPath((0, path_1.join)(root, './node_modules/.bin'));
+        if (!(0, utils_1.cmdExists)('cpany')) {
+            core.setFailed(`@cpany/cli is not installed.`);
+            process.exit(1);
+        }
         const cli = (0, utils_1.resolveCPanyPlugin)('@cpany/cli', root);
         const version = (0, utils_1.packageVersion)(cli.directory);
         core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${version}`)}`);
