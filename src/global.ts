@@ -23,7 +23,11 @@ export async function globalInstall(
   core.info(`Global node_modules: ${underline(GlobalNodemodules)}`);
 
   const paths = ['node_modules', GlobalNodemodules];
-  const hitCacheKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  core.startGroup('Restore cache');
+  const hitCacheKey = await cache.restoreCache(paths, 'cpany-global-', [
+    'cpany-global-'
+  ]);
+  core.endGroup();
   if (hitCacheKey) {
     core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
   }
@@ -61,9 +65,9 @@ export async function globalInstall(
     );
   }
 
-  if (hitCacheKey !== `cpany-${version}`) {
+  if (hitCacheKey !== `cpany-global-${version}`) {
     await core.group(`Cache CPany v${version}`, async () => {
-      await cache.saveCache(paths, `cpany-${version}`);
+      await cache.saveCache(paths, `cpany-global-${version}`);
     });
   }
 }

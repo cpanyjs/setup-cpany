@@ -18,7 +18,11 @@ export async function localInstall(
   config: ICPanyConfig
 ): Promise<void> {
   const paths = ['node_modules'];
-  const hitCacheKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  core.startGroup('Restore cache');
+  const hitCacheKey = await cache.restoreCache(paths, 'cpany-local-', [
+    'cpany-local-'
+  ]);
+  core.endGroup();
   if (hitCacheKey) {
     core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
   }
@@ -52,9 +56,9 @@ export async function localInstall(
     }
   }
 
-  if (hitCacheKey !== `cpany-${version}`) {
+  if (hitCacheKey !== `cpany-local-${version}`) {
     await core.group(`Cache CPany v${version}`, async () => {
-      await cache.saveCache(paths, `cpany-${version}`);
+      await cache.saveCache(paths, `cpany-local-${version}`);
     });
   }
 }
