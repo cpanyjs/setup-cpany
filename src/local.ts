@@ -18,9 +18,9 @@ export async function localInstall(
   config: ICPanyConfig
 ): Promise<void> {
   const paths = ['node_modules'];
-  const cachedKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
-  if (cachedKey) {
-    core.info(`Cache hit: ${lightGreen(cachedKey)}`);
+  const hitCacheKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  if (hitCacheKey) {
+    core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
   }
 
   await core.group('Install dependency', async () => {
@@ -52,7 +52,11 @@ export async function localInstall(
     }
   }
 
-  await cache.saveCache(paths, `cpany-${version}`);
+  if (hitCacheKey !== `cpany-${version}`) {
+    await core.group(`Cache CPany v${version}`, async () => {
+      await cache.saveCache(paths, `cpany-${version}`);
+    });
+  }
 }
 
 async function installDep(root: string): Promise<void> {

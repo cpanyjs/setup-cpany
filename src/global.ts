@@ -23,9 +23,9 @@ export async function globalInstall(
   core.info(`Global node_modules: ${underline(GlobalNodemodules)}`);
 
   const paths = ['node_modules', GlobalNodemodules];
-  const cachedKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
-  if (cachedKey) {
-    core.info(`Cache hit: ${lightGreen(cachedKey)}`);
+  const hitCacheKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  if (hitCacheKey) {
+    core.info(`Cache hit: ${lightGreen(hitCacheKey)}`);
   }
 
   await core.group(`Install ${lightGreen('@cpany/cli')}`, async () => {
@@ -61,7 +61,11 @@ export async function globalInstall(
     );
   }
 
-  await cache.saveCache(paths, `cpany-${version}`);
+  if (hitCacheKey !== `cpany-${version}`) {
+    await core.group(`Cache CPany v${version}`, async () => {
+      await cache.saveCache(paths, `cpany-${version}`);
+    });
+  }
 }
 
 async function installPlugin(

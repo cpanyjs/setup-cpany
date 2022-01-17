@@ -51,9 +51,9 @@ function globalInstall(_root, config) {
         GlobalNodemodules = (yield (0, exec_1.getExecOutput)('npm', ['root', '-g'], { silent: true })).stdout.trim();
         core.info(`Global node_modules: ${(0, kolorist_1.underline)(GlobalNodemodules)}`);
         const paths = ['node_modules', GlobalNodemodules];
-        const cachedKey = yield cache.restoreCache(paths, 'cpany-', ['cpany-']);
-        if (cachedKey) {
-            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(cachedKey)}`);
+        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-', ['cpany-']);
+        if (hitCacheKey) {
+            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
         }
         yield core.group(`Install ${(0, kolorist_1.lightGreen)('@cpany/cli')}`, () => __awaiter(this, void 0, void 0, function* () {
             yield (0, exec_1.exec)('npm', ['install', '-g', '@cpany/cli']);
@@ -77,7 +77,11 @@ function globalInstall(_root, config) {
                 : '';
             core.info(`Plugin ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)((0, path_1.dirname)(resolvedPlugin.directory))}`)}${pathLog}`);
         }
-        yield cache.saveCache(paths, `cpany-${version}`);
+        if (hitCacheKey !== `cpany-${version}`) {
+            yield core.group(`Cache CPany v${version}`, () => __awaiter(this, void 0, void 0, function* () {
+                yield cache.saveCache(paths, `cpany-${version}`);
+            }));
+        }
     });
 }
 exports.globalInstall = globalInstall;
@@ -179,9 +183,9 @@ function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const paths = ['node_modules'];
-        const cachedKey = yield cache.restoreCache(paths, 'cpany-', ['cpany-']);
-        if (cachedKey) {
-            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(cachedKey)}`);
+        const hitCacheKey = yield cache.restoreCache(paths, 'cpany-', ['cpany-']);
+        if (hitCacheKey) {
+            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(hitCacheKey)}`);
         }
         yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
@@ -206,7 +210,11 @@ function localInstall(root, config) {
                 core.error(`Plugin ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
-        yield cache.saveCache(paths, `cpany-${version}`);
+        if (hitCacheKey !== `cpany-${version}`) {
+            yield core.group(`Cache CPany v${version}`, () => __awaiter(this, void 0, void 0, function* () {
+                yield cache.saveCache(paths, `cpany-${version}`);
+            }));
+        }
     });
 }
 exports.localInstall = localInstall;
