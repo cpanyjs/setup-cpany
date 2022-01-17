@@ -1,4 +1,5 @@
 import os from 'os';
+import fs from 'fs';
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 
@@ -36,6 +37,11 @@ export async function packageExists(name: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export function packageVersion(importPath: string): string {
+  const pkg = fs.readFileSync(join(importPath, 'package.json'), 'utf-8');
+  return JSON.parse(pkg).version;
 }
 
 export function resolveImportPath(

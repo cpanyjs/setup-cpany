@@ -15,6 +15,7 @@ specifiers:
   global-dirs: ^3.0.0
   js-yaml: ^4.1.0
   kolorist: ^1.5.0
+  pnpm: ^6.26.1
   prettier: 2.4.1
   resolve: ^1.20.0
   typescript: ^4.4.4
@@ -37,6 +38,7 @@ devDependencies:
   eslint-plugin-github: 4.3.4_eslint@8.2.0+typescript@4.4.4
   execa: 5.1.1
   fs-extra: 10.0.0
+  pnpm: 6.26.1
   prettier: 2.4.1
   typescript: 4.4.4
 
@@ -1337,6 +1339,12 @@ packages:
     engines: {node: '>=4'}
     dependencies:
       find-up: 2.1.0
+    dev: true
+
+  /pnpm/6.26.1:
+    resolution: {integrity: sha512-LsBJ+mJLenS4bmbA2xLWUTpWEXIThxPQy0uePEsplBdUUFvgrTDccyIcKDepE8EY8e5QSks67IOMI7bDRySgbQ==}
+    engines: {node: '>=12.17'}
+    hasBin: true
     dev: true
 
   /prelude-ls/1.2.1:

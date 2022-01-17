@@ -161,6 +161,9 @@ const exec_1 = __nccwpck_require__(4919);
 const core = __importStar(__nccwpck_require__(6744));
 const kolorist_1 = __nccwpck_require__(1163);
 const utils_1 = __nccwpck_require__(6389);
+function isVerbose() {
+    return core.getInput('verbose') === 'true';
+}
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -170,15 +173,19 @@ function localInstall(root, config) {
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));
             if (!(0, utils_1.cmdExists)('cpany')) {
                 core.setFailed(`@cpany/cli is not installed.`);
+                process.exit(1);
             }
         }));
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
-                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(resolvedPlugin.name)} => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`);
+                const pathLog = isVerbose()
+                    ? ` => ${(0, kolorist_1.underline)(resolvedPlugin.directory)}`
+                    : '';
+                core.info(`CPany plugin: ${(0, kolorist_1.lightGreen)(`${resolvedPlugin.name}:${(0, utils_1.packageVersion)(resolvedPlugin.directory)}`)}${pathLog}`);
             }
             else {
-                core.setFailed(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
+                core.error(`CPany plugin: ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
     });
@@ -202,7 +209,7 @@ function installDep(root) {
             yield (0, exec_1.exec)('yarn', ['install'], { cwd: root });
         }
         else {
-            core.error(`No package manager has been detected.`);
+            core.setFailed(`No package manager has been detected.`);
             process.exit(1);
         }
     });
@@ -320,8 +327,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveCPanyPlugin = exports.resolveImportPath = exports.packageExists = exports.cmdExists = void 0;
+exports.resolveCPanyPlugin = exports.resolveImportPath = exports.packageVersion = exports.packageExists = exports.cmdExists = void 0;
 const os_1 = __importDefault(__nccwpck_require__(2037));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __nccwpck_require__(1017);
 const child_process_1 = __nccwpck_require__(2081);
 const exec_1 = __nccwpck_require__(4919);
@@ -359,6 +367,11 @@ function packageExists(name) {
     });
 }
 exports.packageExists = packageExists;
+function packageVersion(importPath) {
+    const pkg = fs_1.default.readFileSync((0, path_1.join)(importPath, 'package.json'), 'utf-8');
+    return JSON.parse(pkg).version;
+}
+exports.packageVersion = packageVersion;
 function resolveImportPath(importName, root, ensure = false) {
     try {
         return (0, resolve_1.sync)(importName, {

@@ -6,6 +6,10 @@ inputs:
     required: false
     description: 'The directory of cpany.yml'
     default: './'
+  verbose:
+    required: false
+    description: 'Verbose log'
+    default: 'false'
 runs:
   using: 'node12'
   main: 'dist/index.js'

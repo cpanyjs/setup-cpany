@@ -5,7 +5,11 @@ import * as core from '@actions/core';
 import { red, lightGreen, underline } from 'kolorist';
 
 import { ICPanyConfig } from './types';
-import { cmdExists, resolveCPanyPlugin } from './utils';
+import { cmdExists, packageVersion, resolveCPanyPlugin } from './utils';
+
+function isVerbose(): boolean {
+  return core.getInput('verbose') === 'true';
+}
 
 export async function localInstall(
   root: string,
@@ -18,19 +22,23 @@ export async function localInstall(
     core.addPath(join(root, './node_modules/.bin'));
     if (!cmdExists('cpany')) {
       core.setFailed(`@cpany/cli is not installed.`);
+      process.exit(1);
     }
   });
 
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
     if (resolvedPlugin) {
+      const pathLog = isVerbose()
+        ? ` => ${underline(resolvedPlugin.directory)}`
+        : '';
       core.info(
-        `CPany plugin: ${lightGreen(resolvedPlugin.name)} => ${underline(
-          resolvedPlugin.directory
-        )}`
+        `CPany plugin: ${lightGreen(
+          `${resolvedPlugin.name}:${packageVersion(resolvedPlugin.directory)}`
+        )}${pathLog}`
       );
     } else {
-      core.setFailed(
+      core.error(
         `CPany plugin: ${lightGreen(pluginName)} => ${red('Not found')}`
       );
     }
@@ -51,7 +59,7 @@ async function installDep(root: string): Promise<void> {
     }
     await exec('yarn', ['install'], { cwd: root });
   } else {
-    core.error(`No package manager has been detected.`);
+    core.setFailed(`No package manager has been detected.`);
     process.exit(1);
   }
 }
