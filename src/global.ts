@@ -40,7 +40,9 @@ export async function globalInstall(
   {
     const cli = resolveGlobal('@cpany/cli')!;
     core.info(
-      `Cli    ${lightGreen(`@cpany/cli:${packageVersion(dirname(dirname(cli)))}`)}`
+      `Cli    ${lightGreen(
+        `@cpany/cli:${packageVersion(dirname(dirname(cli)))}`
+      )}`
     );
   }
 
