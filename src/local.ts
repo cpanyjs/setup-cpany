@@ -2,6 +2,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { exec } from '@actions/exec';
 import * as core from '@actions/core';
+import * as cache from '@actions/cache';
 import { red, lightGreen, underline } from 'kolorist';
 
 import { ICPanyConfig } from './types';
@@ -16,6 +17,12 @@ export async function localInstall(
   root: string,
   config: ICPanyConfig
 ): Promise<void> {
+  const paths = ['node_modules'];
+  const cachedKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  if (cachedKey) {
+    core.info(`Cache hit: ${lightGreen(cachedKey)}`);
+  }
+
   await core.group('Install dependency', async () => {
     await installDep(root);
     core.addPath(join(root, './node_modules/.bin'));
@@ -25,12 +32,9 @@ export async function localInstall(
     }
   });
 
-  {
-    const cli = resolveCPanyPlugin('@cpany/cli', root)!;
-    core.info(
-      `Cli    ${lightGreen(`@cpany/cli:${packageVersion(cli.directory)}`)}`
-    );
-  }
+  const cli = resolveCPanyPlugin('@cpany/cli', root)!;
+  const version = packageVersion(cli.directory);
+  core.info(`Cli    ${lightGreen(`@cpany/cli:${version}`)}`);
 
   for (const pluginName of config?.plugins ?? []) {
     const resolvedPlugin = resolveCPanyPlugin(pluginName, root);
@@ -47,6 +51,8 @@ export async function localInstall(
       core.error(`Plugin ${lightGreen(pluginName)} => ${red('Not found')}`);
     }
   }
+
+  await cache.saveCache(paths, `cpany-${version}`);
 }
 
 async function installDep(root: string): Promise<void> {

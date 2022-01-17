@@ -172,11 +172,17 @@ const path_1 = __nccwpck_require__(1017);
 const fs_1 = __nccwpck_require__(7147);
 const exec_1 = __nccwpck_require__(4919);
 const core = __importStar(__nccwpck_require__(6744));
+const cache = __importStar(__nccwpck_require__(1026));
 const kolorist_1 = __nccwpck_require__(1163);
 const utils_1 = __nccwpck_require__(6389);
 function localInstall(root, config) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        const paths = ['node_modules'];
+        const cachedKey = yield cache.restoreCache(paths, 'cpany-', ['cpany-']);
+        if (cachedKey) {
+            core.info(`Cache hit: ${(0, kolorist_1.lightGreen)(cachedKey)}`);
+        }
         yield core.group('Install dependency', () => __awaiter(this, void 0, void 0, function* () {
             yield installDep(root);
             core.addPath((0, path_1.join)(root, './node_modules/.bin'));
@@ -185,10 +191,9 @@ function localInstall(root, config) {
                 process.exit(1);
             }
         }));
-        {
-            const cli = (0, utils_1.resolveCPanyPlugin)('@cpany/cli', root);
-            core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${(0, utils_1.packageVersion)(cli.directory)}`)}`);
-        }
+        const cli = (0, utils_1.resolveCPanyPlugin)('@cpany/cli', root);
+        const version = (0, utils_1.packageVersion)(cli.directory);
+        core.info(`Cli    ${(0, kolorist_1.lightGreen)(`@cpany/cli:${version}`)}`);
         for (const pluginName of (_a = config === null || config === void 0 ? void 0 : config.plugins) !== null && _a !== void 0 ? _a : []) {
             const resolvedPlugin = (0, utils_1.resolveCPanyPlugin)(pluginName, root);
             if (resolvedPlugin) {
@@ -201,6 +206,7 @@ function localInstall(root, config) {
                 core.error(`Plugin ${(0, kolorist_1.lightGreen)(pluginName)} => ${(0, kolorist_1.red)('Not found')}`);
             }
         }
+        yield cache.saveCache(paths, `cpany-${version}`);
     });
 }
 exports.localInstall = localInstall;
