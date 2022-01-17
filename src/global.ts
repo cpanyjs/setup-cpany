@@ -1,6 +1,7 @@
 import { join, dirname } from 'path';
 
 import * as core from '@actions/core';
+import * as cache from '@actions/cache';
 import { exec, getExecOutput } from '@actions/exec';
 import { npm, yarn } from 'global-dirs';
 import { red, lightGreen, underline, yellow } from 'kolorist';
@@ -11,7 +12,7 @@ import { isVerbose, packageExists, packageVersion } from './utils';
 let GlobalNodemodules = npm.packages;
 
 export async function globalInstall(
-  root: string,
+  _root: string,
   config: ICPanyConfig
 ): Promise<void> {
   core.info(`Setup ${yellow('Global')} CPany`);
@@ -20,6 +21,12 @@ export async function globalInstall(
     await getExecOutput('npm', ['root', '-g'], { silent: true })
   ).stdout.trim();
   core.info(`Global node_modules: ${underline(GlobalNodemodules)}`);
+
+  const paths = ['node_modules', GlobalNodemodules];
+  const cachedKey = await cache.restoreCache(paths, 'cpany-', ['cpany-']);
+  if (cachedKey) {
+    core.info(`Cache hit: ${lightGreen(cachedKey)}`);
+  }
 
   await core.group(`Install ${lightGreen('@cpany/cli')}`, async () => {
     await exec('npm', ['install', '-g', '@cpany/cli']);
@@ -37,14 +44,9 @@ export async function globalInstall(
     }
   }
 
-  {
-    const cli = resolveGlobal('@cpany/cli')!;
-    core.info(
-      `Cli    ${lightGreen(
-        `@cpany/cli:${packageVersion(dirname(dirname(cli)))}`
-      )}`
-    );
-  }
+  const cli = resolveGlobal('@cpany/cli')!;
+  const version = packageVersion(dirname(dirname(cli)));
+  core.info(`Cli    ${lightGreen(`@cpany/cli:${version}`)}`);
 
   for (const resolvedPlugin of plugins) {
     const pathLog = isVerbose()
@@ -58,6 +60,8 @@ export async function globalInstall(
       )}${pathLog}`
     );
   }
+
+  await cache.saveCache(paths, `cpany-${version}`);
 }
 
 async function installPlugin(
