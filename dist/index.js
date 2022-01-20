@@ -300,12 +300,13 @@ function loadCPanyConfig(root) {
         core.error(`${configPath} is not found`);
         process.exit(1);
     }
-    core.startGroup(`Load ${(0, kolorist_1.cyan)('cpany.yml')}`);
-    const content = (0, fs_1.readFileSync)(configPath, 'utf-8');
-    core.info(content);
-    core.endGroup();
     try {
-        return (0, js_yaml_1.load)(content);
+        core.startGroup(`Load ${(0, kolorist_1.cyan)('cpany.yml')}`);
+        const content = (0, fs_1.readFileSync)(configPath, 'utf-8');
+        const config = (0, js_yaml_1.load)(content);
+        core.info((0, js_yaml_1.dump)(config));
+        core.endGroup();
+        return config;
     }
     catch (error) {
         core.error(`${error}`);

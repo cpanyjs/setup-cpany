@@ -2,7 +2,7 @@ import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
 
 import * as core from '@actions/core';
-import { load } from 'js-yaml';
+import { dump, load } from 'js-yaml';
 import { cyan, underline } from 'kolorist';
 
 import type { ICPanyConfig } from './types';
@@ -26,13 +26,13 @@ function loadCPanyConfig(root: string): ICPanyConfig {
     process.exit(1);
   }
 
-  core.startGroup(`Load ${cyan('cpany.yml')}`);
-  const content = readFileSync(configPath, 'utf-8');
-  core.info(content);
-  core.endGroup();
-
   try {
-    return load(content) as ICPanyConfig;
+    core.startGroup(`Load ${cyan('cpany.yml')}`);
+    const content = readFileSync(configPath, 'utf-8');
+    const config = load(content) as ICPanyConfig;
+    core.info(dump(config));
+    core.endGroup();
+    return config;
   } catch (error) {
     core.error(`${error}`);
     process.exit(1);
