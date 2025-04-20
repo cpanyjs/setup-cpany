@@ -1,4 +1,4 @@
-import { readJSON, writeJSON } from 'fs-extra';
+import * as fs from 'fs-extra';
 import { execa } from 'execa';
 
 async function check() {
@@ -28,9 +28,9 @@ async function bootstrap() {
   console.log(`Publish setup-cpany@${version}`);
   console.log();
 
-  const json = await readJSON('./package.json');
+  const json = await fs.readJSON('./package.json');
   json.version = version;
-  await writeJSON('./package.json', json, { spaces: 2 });
+  await fs.writeJSON('./package.json', json, { spaces: 2 });
 
   await run('pnpm', 'run', 'all');
 
