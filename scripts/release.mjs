@@ -1,5 +1,5 @@
-const { readJSON, writeJSON } = require('fs-extra');
-const execa = require('execa');
+import { readJSON, writeJSON } from 'fs-extra';
+import { execa } from 'execa';
 
 async function check() {
   const result = await execa('git', ['branch']);
@@ -39,7 +39,14 @@ async function bootstrap() {
 
   await run('git', 'tag', '-a', `v${version}`, '-m', `release: v${version}`);
   await run('git', 'push', 'origin', `:refs/tags/v${version.split('.')[0]}`);
-  await run('git', 'tag', '-fa', `v${version.split('.')[0]}`, '-m', `release: v${version}`);
+  await run(
+    'git',
+    'tag',
+    '-fa',
+    `v${version.split('.')[0]}`,
+    '-m',
+    `release: v${version}`
+  );
   await run('git', 'push', 'origin', 'main', '--tags');
 }
 

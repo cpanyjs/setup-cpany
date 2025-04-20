@@ -23,7 +23,7 @@
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
-    "release": "node scripts/release.js"
+    "release": "node scripts/release.mjs"
   },
   "dependencies": {
     "@actions/cache": "^4.0.3",
