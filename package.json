@@ -1,6 +1,6 @@
 {
   "name": "setup-cpany",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "private": true,
   "description": "Setup CPany environment",
   "keywords": [
