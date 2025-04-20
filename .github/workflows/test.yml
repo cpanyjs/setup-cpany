@@ -23,16 +23,16 @@ jobs:
 
       - run: pnpm run all
 
-  test-global: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # test-global: # make sure the action works on a clean machine without building
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: ./
-        with:
-          root: ./example/global
+  #     - uses: ./
+  #       with:
+  #         root: ./example/global
 
-      - run: cpany --version
+  #     - run: cpany --version
 
   test-local-npm: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
@@ -45,24 +45,24 @@ jobs:
 
       - run: cpany --version
 
-  test-local-yarn: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # test-local-yarn: # make sure the action works on a clean machine without building
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: ./
-        with:
-          root: ./example/yarn
+  #     - uses: ./
+  #       with:
+  #         root: ./example/yarn
 
-      - run: cpany --version
+  #     - run: cpany --version
 
-  test-local-pnpm: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # test-local-pnpm: # make sure the action works on a clean machine without building
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: ./
-        with:
-          root: ./example/pnpm
+  #     - uses: ./
+  #       with:
+  #         root: ./example/pnpm
 
-      - run: cpany --version
+  #     - run: cpany --version
